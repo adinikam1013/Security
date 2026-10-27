@@ -1,0 +1,81 @@
+01_Port Security
+
+Why we did this
+================
+In a Layer 2 network, any device can be connected to an active switch port and start communicating on the network.
+To prevent unauthorized devices from connecting to the network, Cisco introduced Port Security.
+Port Security allows the switch to limit the number of MAC addresses learned on a port and specify which devices are allowed.
+
+Example:
+A company assigns a PC to Switch Port Fa0/1. An employee disconnects the company PC and connects a personal laptop. Without Port Security, the personal laptop will gain network access.
+Port Security ensures only authorized MAC addresses can use the port.
+
+What will happen
+================
+1. Switch learns allowed MAC address(es).
+2. If an authorized device connects, normal traffic is allowed.
+3. If an unauthorized device connects, a security violation occurs.
+4. Based on configured violation mode, the switch can:
+   - Drop traffic
+   - Log the violation
+   - Disable the port
+
+Advantages and Disadvantages of this, hence what came next
+==========================================================
+Advantages
+----------
+1. Prevents unauthorized devices from connecting.
+2. Protects against MAC flooding attacks.
+3. Simple and easy to configure.
+4. Reduces insider threats.
+5. Increases access-layer security.
+
+Disadvantages
+-------------
+1. Manual MAC address management can be difficult.
+2. Device replacement requires configuration changes.
+3. Does not authenticate users.
+4. Does not protect against spoofed MAC addresses.
+5. Not scalable for large enterprise environments.
+
+Hence what came next
+--------------------
+Because manually configuring MAC addresses was difficult, Cisco introduced Sticky MAC Security.
+Sticky MAC Security automatically learns and saves MAC addresses, reducing administrative effort.
+
+One-Shot Configuration
+======================
+
+Switch(config)# interface fa0/1
+Switch(config-if)# switchport mode access
+Switch(config-if)# switchport port-security
+Switch(config-if)# switchport port-security maximum 1
+Switch(config-if)# switchport port-security mac-address 0011.2233.4455
+Switch(config-if)# switchport port-security violation shutdown
+Switch(config-if)# end
+
+Verification
+============
+show port-security
+show port-security interface fa0/1
+show port-security address
+
+Expected Result
+===============
+Only MAC address 0011.2233.4455 can use Fa0/1.
+If any other device is connected:
+- Security violation is generated.
+- Port goes into Err-Disabled state.
+- User loses connectivity until the port is recovered.
+
+Summary
+=======
+Problem:
+Anyone could connect to an active switch port.
+
+Solution:
+Port Security restricts which MAC addresses are allowed on a switch port.
+
+Limitation:
+Managing MAC addresses manually is difficult.
+
