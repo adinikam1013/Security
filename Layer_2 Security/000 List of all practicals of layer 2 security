@@ -1,0 +1,90 @@
+01_Port Security
+02_Sticky MAC Security
+03_Port Security Protect Mode
+04_Port Security Restrict Mode
+05_Port Security Shutdown Mode
+06_Static MAC Binding
+07_MAC Address Filtering
+08_Disable Unused Ports
+09_Black Hole VLAN
+10_Access Port Hardening
+11_Switchport Mode Hardening
+12_VLAN Segmentation
+13_Native VLAN Change
+14_VLAN Hopping Prevention
+15_Private VLAN (PVLAN)
+16_Voice VLAN Security
+17_Trunk Port Security
+18_DTP Disable
+19_DHCP Snooping
+20_DHCP Snooping Rate Limiting
+21_Rogue DHCP Detection
+22_DHCP Starvation Attack
+23_DHCP Starvation Mitigation
+24_Dynamic ARP Inspection (DAI)
+25_ARP Spoofing Attack
+26_ARP Spoofing Prevention
+27_IP Source Guard
+28_Device Tracking
+29_MAC Spoofing Detection
+30_MAC Flooding Attack
+31_CAM Table Overflow Mitigation
+32_STP Security Basics
+33_BPDU Guard
+34_Root Guard
+35_Loop Guard
+36_BPDU Filtering
+37_PortFast Security
+38_STP Attack Prevention
+39_STP Manipulation Attack
+40_Rogue Switch Prevention
+41_UDLD
+42_EtherChannel Security
+43_LACP Security
+44_PAgP Security
+45_Broadcast Storm Control
+46_Multicast Storm Control
+47_Unknown Unicast Storm Control
+48_Storm Control Recovery
+49_Secure Management VLAN
+50_Management Plane Protection
+51_SSH Access Security
+52_Telnet Disable
+53_AAA Authentication
+54_Local User Authentication
+55_RADIUS Integration
+56_TACACS+ Integration
+57_SNMPv3 Security
+58_Disable Unused Services
+59_Syslog Security Monitoring
+60_NTP Authentication
+61_SPAN Monitoring
+62_RSPAN Monitoring
+63_ERSPAN Monitoring
+64_CDP Disable
+65_CDP Security Assessment
+66_LLDP Security
+67_LLDP Disable
+68_Port Isolation
+69_Protected Ports
+70_VACL Configuration
+71_PACL Configuration
+72_VLAN Access Restriction
+73_Guest VLAN Configuration
+74_Restricted VLAN Access
+75_Unauthorized Device Blocking
+76_802.1X Authentication
+77_MAB Authentication
+78_Dynamic VLAN Assignment
+79_Downloadable ACL (dACL)
+80_Cisco ISE Integration
+81_NAC Deployment
+82_TrustSec Security Group Tags
+83_MACsec Encryption
+84_East-West Traffic Isolation
+85_Secure Campus Access Design
+86_Data Center Layer 2 Security
+87_Rogue Endpoint Detection
+88_Zero Trust Network Access at L2
+89_Compliance Monitoring at Switch Layer
+90_End-to-End Layer 2 Security Hardening Lab
