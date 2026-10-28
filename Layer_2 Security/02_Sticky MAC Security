@@ -1,0 +1,108 @@
+Name :
+================
+Sticky MAC Security
+
+Why we did this
+================
+In Port Security, administrators had to manually configure the MAC address of every device.
+
+This became difficult in large environments because:
+- Every PC MAC address had to be collected manually.
+- Device replacement required reconfiguration.
+- Moves, Adds, and Changes (MAC) were time-consuming.
+
+To reduce administrative effort, Cisco introduced Sticky MAC Security.
+
+Sticky MAC Security automatically learns the MAC address of a device connected to the port and adds it to the running configuration.
+
+What will happen
+================
+1. A device is connected to the switch port.
+2. The switch automatically learns the device MAC address.
+3. The MAC address is added to the running configuration.
+4. Future connections from the same device are allowed.
+5. If another device is connected and maximum MAC limit is reached, a violation occurs.
+
+Example:
+PC1 connects to Fa0/1.
+
+MAC Address:
+00AA.1111.2222
+
+The switch automatically learns and stores this MAC.
+
+If PC2 is connected later, the switch detects a violation and takes the configured action.
+
+Advantages and Disadvantages of this, hence what came next
+==========================================================
+
+Advantages
+----------
+1. No need to manually enter MAC addresses.
+2. Easier administration.
+3. Faster deployment.
+4. Provides the benefits of Port Security with less effort.
+5. Good for access-layer ports.
+
+Disadvantages
+-------------
+1. Learns the first device connected, even if it is unauthorized.
+2. Does not verify user identity.
+3. MAC addresses can still be spoofed.
+4. Requires cleanup when devices are permanently replaced.
+5. Security is based only on MAC addresses.
+
+Hence what came next
+--------------------
+Even with Sticky MAC, attackers could spoof a valid MAC address and gain access.
+
+Organizations wanted a way to verify users and devices before granting network access.
+
+This led to:
+
+802.1X Port-Based Authentication
+
+Instead of trusting only a MAC address, the switch authenticates the user/device using credentials through a RADIUS server.
+
+One-Shot Configuration
+======================
+
+Switch(config)# interface fa0/1
+Switch(config-if)# switchport mode access
+Switch(config-if)# switchport port-security
+Switch(config-if)# switchport port-security maximum 1
+Switch(config-if)# switchport port-security mac-address sticky
+Switch(config-if)# switchport port-security violation shutdown
+Switch(config-if)# end
+
+Verification
+============
+
+show port-security
+show port-security interface fa0/1
+show port-security address
+show running-config interface fa0/1
+
+Expected Result
+===============
+
+1. Switch automatically learns the first MAC address.
+2. MAC address appears in the running configuration.
+3. Same device continues to work normally.
+4. Any new device causes a security violation.
+5. Port enters configured violation state.
+
+Summary
+=======
+
+Problem:
+Port Security required manual MAC address configuration.
+
+Solution:
+Sticky MAC Security automatically learns and saves MAC addresses.
+
+Limitation:
+MAC addresses can still be spoofed and users are not authenticated.
+
+Next Practical:
+802.1X Port-Based Authentication
