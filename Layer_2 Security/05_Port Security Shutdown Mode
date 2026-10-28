@@ -1,0 +1,132 @@
+Name : Port Security Shutdown Mode
+
+Why we did this
+================
+Protect Mode silently drops unauthorized traffic.
+Restrict Mode drops unauthorized traffic and generates logs.
+However, in high-security environments such as banks, data centers, government networks, and critical infrastructure, simply dropping the traffic is not enough.
+Administrators want immediate action whenever an unauthorized device is connected.
+To provide the highest level of Layer 2 port security, Cisco introduced Shutdown Mode.
+Shutdown Mode completely disables the port whenever a security violation occurs.
+
+What will happen
+================
+1. The switch learns the allowed MAC address(es).
+2. Authorized devices communicate normally.
+3. If an unauthorized device connects:
+   - Security violation occurs.
+   - Port immediately enters Err-Disabled state.
+   - All traffic stops.
+   - Syslog messages are generated.
+   - SNMP traps can be generated.
+   - Administrator intervention is usually required.
+
+Example:
+
+Allowed MAC:
+0011.2233.4455
+
+Unauthorized MAC:
+00AA.BBCC.DDEE
+
+Result:
+- Port is shut down.
+- All communication stops.
+- User loses connectivity.
+- Network team investigates the incident.
+
+Advantages and Disadvantages of this, hence what came next
+==========================================================
+Advantages
+----------
+1. Highest level of Port Security protection.
+2. Immediately blocks unauthorized devices.
+3. Generates security logs and alerts.
+4. Helps detect physical security violations.
+5. Prevents repeated attack attempts on the same port.
+6. Widely used in secure enterprise environments.
+
+Disadvantages
+-------------
+1. Legitimate users may lose connectivity if their device is replaced.
+2. Requires manual recovery or automatic err-disable recovery.
+3. Can generate support tickets for simple user mistakes.
+4. Operational overhead is higher than Protect and Restrict modes.
+5. Not ideal for frequently changing environments.
+
+Hence what came next
+--------------------
+Administrators noticed that manually configuring MAC addresses was still difficult.
+They wanted the switch to automatically learn and save MAC addresses while still enforcing Port Security.
+This led to:
+Static MAC Binding
+and later
+Sticky MAC Security
+which automatically learns and stores MAC addresses to reduce administrative effort.
+
+One-Shot Configuration
+======================
+Switch(config)# interface fa0/1
+Switch(config-if)# switchport mode access
+Switch(config-if)# switchport port-security
+Switch(config-if)# switchport port-security maximum 1
+Switch(config-if)# switchport port-security mac-address 0011.2233.4455
+Switch(config-if)# switchport port-security violation shutdown
+Switch(config-if)# end
+
+Verification
+===========
+show port-security
+show port-security interface fa0/1
+
+Expected Result
+===============
+authorized Device:
+------------------
+Traffic Allowed
+
+Unauthorized Device:
+--------------------
+Port Shutdown
+
+Port Status:
+-------------
+Err-Disabled
+
+Logs:
+-----
+Generated
+
+SNMP Traps:
+-----------
+Generated (if configured)
+
+Recovery Commands
+=================
+
+Switch(config)# interface fa0/1
+Switch(config-if)# shutdown
+Switch(config-if)# no shutdown
+
+OR
+
+Switch(config)# errdisable recovery cause psecure-violation
+Switch(config)# errdisable recovery interval 300
+
+Summary
+=======
+
+Problem:
+Protect and Restrict Modes allowed the port to stay operational after a violation.
+
+Solution:
+Shutdown Mode immediately disables the port when an unauthorized device is detected.
+
+Benefit:
+Provides the strongest security among all Port Security violation modes.
+
+Limitation:
+Can cause operational disruption and requires recovery actions.
+
+Next Practical:
+Static MAC Binding
