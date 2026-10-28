@@ -1,0 +1,94 @@
+04_Port Security Restrict Mode
+
+Why we did this
+================
+In Protect Mode, unauthorized devices are blocked, but no logs, alerts, or violation information are generated.
+This creates a problem because network administrators cannot easily determine whether someone attempted unauthorized access.
+To provide visibility and monitoring while still keeping the port active, Cisco introduced Restrict Mode.
+Restrict Mode blocks unauthorized devices and also records the violation.
+
+What will happen
+================
+1. The switch learns the permitted MAC address(es).
+2. Authorized devices communicate normally.
+3. If an unauthorized device connects:
+   - Traffic is dropped.
+   - The port remains UP.
+   - Violation counter increases.
+   - Syslog messages are generated.
+   - SNMP traps can be generated.
+
+Example:
+Allowed MAC:
+0011.2233.4455
+
+Unauthorized MAC:
+00AA.BBCC.DDEE
+
+Result:
+- Unauthorized traffic is dropped.
+- Port remains operational.
+- Security violation is logged.
+
+Advantages and Disadvantages of this, hence what came next
+==========================================================
+Advantages
+----------
+1. Blocks unauthorized devices.
+2. Port remains UP and available.
+3. Generates security logs.
+4. Increments violation counter.
+5. Supports security monitoring and auditing.
+6. Easier troubleshooting than Protect Mode.
+
+Disadvantages
+-------------
+1. Unauthorized access attempts still reach the switch before being dropped.
+2. Port is not completely disabled.
+3. Continuous attacks can generate excessive logs.
+4. Requires monitoring tools to fully benefit from alerts.
+
+Hence what came next
+--------------------
+Some organizations require maximum security.
+Instead of allowing the port to remain active after a violation, they want the port to be immediately disabled whenever an unauthorized device is connected.
+This led to:Port Security Shutdown Mode
+
+Shutdown Mode places the port into an Err-Disabled state after a violation, completely blocking access until recovery is performed.
+One-Shot Configuration
+======================
+
+Switch(config)# interface fa0/1
+Switch(config-if)# switchport mode access
+Switch(config-if)# switchport port-security
+Switch(config-if)# switchport port-security maximum 1
+Switch(config-if)# switchport port-security mac-address sticky
+Switch(config-if)# switchport port-security violation restrict
+Switch(config-if)# end
+
+Verification
+============
+show port-security
+show port-security interface fa0/1
+
+Expected Result
+===============
+
+Authorized Device: Traffic Allowed
+
+Unauthorized Device: Traffic Dropped
+
+Port Status: UP
+
+Violation Counter: Incremented
+
+Logs: Generated
+
+SNMP Traps: Generated (if configured)
+
+Summary
+=======
+Problem: Protect Mode blocked unauthorized devices but provided no visibility.
+Solution: Restrict Mode blocks unauthorized traffic and generates logs, SNMP traps, and violation counters.
+Limitation: The port remains active even after a violation.
+Next Practical: Port Security Shutdown Mode
