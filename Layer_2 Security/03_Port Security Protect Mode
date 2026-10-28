@@ -1,0 +1,101 @@
+Name :
+================
+Port Security Protect Mode
+
+Why we did this
+================
+When Port Security detects an unauthorized MAC address, we need to decide how the switch should react.
+Immediately shutting down the port may impact users and create operational issues.
+To provide a less disruptive action, Cisco introduced Protect Mode.
+Protect Mode silently blocks traffic from unauthorized MAC addresses while keeping the port up and operational.
+
+What will happen
+================
+1. The port learns the permitted MAC address(es).
+2. An authorized device communicates normally.
+3. If an unauthorized device connects:
+   - Frames from that MAC address are discarded.
+   - The port remains UP.
+   - No log messages are generated.
+   - No SNMP traps are generated.
+   - No violation counter increments.
+
+Example:
+Allowed MAC:
+0011.2233.4455
+
+Unauthorized MAC:
+00AA.BBCC.DDEE
+
+Result:
+- Authorized device works normally.
+- Unauthorized device receives no network access.
+- Switch silently drops traffic.
+
+Advantages and Disadvantages of this, hence what came next
+==========================================================
+Advantages
+----------
+1. Port remains operational.
+2. No service disruption for authorized users.
+3. Simple protection mechanism.
+4. Useful in environments where downtime must be avoided.
+5. Blocks unauthorized devices automatically.
+
+Disadvantages
+-------------
+1. No alerts are generated.
+2. Network administrators may not know an attack occurred.
+3. No logging for troubleshooting.
+4. Difficult to monitor security violations.
+5. Unauthorized access attempts can go unnoticed.
+
+Hence what came next
+--------------------
+Administrators wanted to block unauthorized devices while also generating logs and violation counters.
+This led to:
+Port Security Restrict Mode
+Restrict Mode drops unauthorized traffic but also generates logs, SNMP traps, and violation counters.
+One-Shot Configuration
+======================
+
+Switch(config)# interface fa0/1
+Switch(config-if)# switchport mode access
+Switch(config-if)# switchport port-security
+Switch(config-if)# switchport port-security maximum 1
+Switch(config-if)# switchport port-security mac-address sticky
+Switch(config-if)# switchport port-security violation protect
+Switch(config-if)# end
+
+Verification
+===========
+show port-security
+show port-security interface fa0/1
+
+Expected Result
+===============
+Authorized Device: Traffic Allowed
+
+Unauthorized Device: Traffic Dropped
+
+Port Status: UP
+
+Logs: None
+
+SNMP Traps: None
+
+Violation Counter: No Increment
+
+Summary
+=======
+Problem:
+We needed a way to block unauthorized devices without shutting down the port.
+
+Solution:
+Protect Mode silently drops traffic from unauthorized MAC addresses.
+
+Limitation:
+No logs, alerts, or violation tracking are available.
+
+Next Practical:
+Port Security Restrict Mode
