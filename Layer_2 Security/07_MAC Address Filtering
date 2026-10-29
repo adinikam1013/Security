@@ -1,0 +1,129 @@
+Name :
+================
+MAC Address Filtering
+
+Why we did this
+================
+Port Security and Static MAC Binding allow specific MAC addresses on a switch port.
+
+However, administrators sometimes need more flexibility.
+
+For example:
+- Allow a group of approved devices.
+- Block known unauthorized devices.
+- Control access based on MAC addresses across multiple ports.
+
+To achieve this, MAC Address Filtering was introduced.
+
+MAC Address Filtering allows the switch to permit or deny traffic based on specified MAC addresses.
+
+What will happen
+================
+1. Administrator defines allowed or blocked MAC addresses.
+2. Switch checks the source MAC address of incoming frames.
+3. If the MAC address matches the allowed list:
+   - Traffic is forwarded.
+4. If the MAC address matches the blocked list:
+   - Traffic is dropped.
+5. Unauthorized devices cannot communicate on the network.
+
+Example:
+
+Allowed MAC Addresses:
+0011.2233.4455
+0066.7788.9900
+
+Blocked MAC Address:
+00AA.BBCC.DDEE
+
+Result:
+- Allowed devices get network access.
+- Blocked device cannot communicate.
+
+Advantages and Disadvantages of this, hence what came next
+==========================================================
+
+Advantages
+----------
+1. Granular control over device access.
+2. Can allow multiple approved devices.
+3. Easy to block known rogue devices.
+4. Useful in small and medium networks.
+5. Adds an additional Layer 2 security control.
+
+Disadvantages
+-------------
+1. MAC addresses can be spoofed.
+2. Manual management is required.
+3. Difficult to maintain in large environments.
+4. Does not verify user identity.
+5. Not suitable for modern Zero Trust environments.
+
+Hence what came next
+--------------------
+Administrators realized that MAC-based security alone was not sufficient because attackers could spoof MAC addresses.
+
+Instead of trusting a MAC address, networks needed a way to verify that a device received its IP address from a legitimate DHCP server.
+
+This led to:
+
+DHCP Snooping
+
+DHCP Snooping prevents rogue DHCP servers and creates a trusted database of MAC-IP bindings that later security features can use.
+
+One-Shot Configuration
+======================
+
+Switch(config)# mac access-list extended MAC-FILTER
+Switch(config-ext-macl)# permit host 0011.2233.4455 any
+Switch(config-ext-macl)# permit host 0066.7788.9900 any
+Switch(config-ext-macl)# deny host 00AA.BBCC.DDEE any
+Switch(config-ext-macl)# exit
+
+Switch(config)# interface fa0/1
+Switch(config-if)# mac access-group MAC-FILTER in
+Switch(config-if)# end
+
+Verification
+============
+
+show mac access-list
+
+show running-config
+
+Expected Result
+===============
+
+Allowed Devices:
+----------------
+Traffic Forwarded
+
+Blocked Devices:
+----------------
+Traffic Dropped
+
+Unauthorized MAC:
+-----------------
+Access Denied
+
+Port Status:
+------------
+UP
+
+Summary
+=======
+
+Problem:
+Administrators needed more control than simply allowing one MAC address per port.
+
+Solution:
+MAC Address Filtering allows specific MAC addresses to be permitted or denied.
+
+Benefit:
+Provides granular Layer 2 access control.
+
+Limitation:
+MAC addresses can still be spoofed and user identity is not verified.
+
+Next Practical:
+DHCP Snooping
