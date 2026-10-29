@@ -1,0 +1,140 @@
+Name :
+================
+Black Hole VLAN
+
+Why we did this
+================
+Disabling unused ports is a good security practice, but administrators may accidentally enable a port in the future.
+
+If that port belongs to the production VLAN, an unauthorized user could immediately gain network access.
+
+To provide an additional layer of protection, unused ports are assigned to a special VLAN known as a Black Hole VLAN.
+
+A Black Hole VLAN is an unused VLAN that has:
+- No Layer 3 SVI
+- No routing
+- No DHCP server
+- No access to production resources
+
+Any device connected to a port in this VLAN gets isolated from the network.
+
+What will happen
+================
+1. An unused VLAN is created.
+2. All unused ports are assigned to that VLAN.
+3. Ports are usually shut down as an extra precaution.
+4. If someone connects a device and the port becomes active:
+   - The device is placed in the Black Hole VLAN.
+   - No access to servers, users, or the Internet is available.
+5. The device is effectively isolated.
+
+Example:
+
+Production VLANs:
+VLAN 10 - Users
+VLAN 20 - Voice
+VLAN 30 - Servers
+
+Black Hole VLAN:
+VLAN 999
+
+Unused Ports:
+Fa0/10 - Fa0/24
+
+All unused ports are assigned to VLAN 999.
+
+If an attacker plugs into Fa0/15:
+- Device enters VLAN 999
+- No network access is available
+
+Advantages and Disadvantages of this, hence what came next
+==========================================================
+
+Advantages
+----------
+1. Provides additional protection for unused ports.
+2. Isolates unauthorized devices.
+3. Prevents accidental access to production VLANs.
+4. Easy to implement.
+5. Recommended Cisco best practice.
+6. Adds a defense-in-depth security layer.
+
+Disadvantages
+-------------
+1. Requires VLAN management.
+2. Does not secure active user ports.
+3. Misconfiguration can place devices into the wrong VLAN.
+4. Still relies on proper switch administration.
+5. Does not stop attacks occurring on authorized ports.
+
+Hence what came next
+--------------------
+Administrators realized attackers could exploit switch ports by pretending to be another VLAN through VLAN Hopping attacks.
+
+To protect against unauthorized VLAN access, Cisco introduced:
+
+Native VLAN Change
+
+and later
+
+VLAN Hopping Prevention
+
+to prevent attackers from accessing VLANs they are not authorized to use.
+
+One-Shot Configuration
+======================
+
+Switch(config)# vlan 999
+Switch(config-vlan)# name BLACK_HOLE
+Switch(config-vlan)# exit
+
+Switch(config)# interface range fa0/10 - 24
+Switch(config-if-range)# switchport mode access
+Switch(config-if-range)# switchport access vlan 999
+Switch(config-if-range)# shutdown
+Switch(config-if-range)# description UNUSED_PORT
+Switch(config-if-range)# end
+
+Verification
+============
+
+show vlan brief
+
+show interfaces status
+
+Expected Result
+===============
+
+Unused Ports:
+-------------
+Assigned to VLAN 999
+
+Port Status:
+------------
+Shutdown
+
+If Port is Enabled Accidentally:
+--------------------------------
+Device enters VLAN 999 only
+
+Access to Production Network:
+-----------------------------
+Not Available
+
+Summary
+=======
+
+Problem:
+Unused ports could accidentally provide access to the production network.
+
+Solution:
+Place unused ports into an isolated Black Hole VLAN.
+
+Benefit:
+Unauthorized devices are isolated and cannot reach production resources.
+
+Limitation:
+Active ports still require additional Layer 2 security controls.
+
+Next Practical:
+Native VLAN Change
