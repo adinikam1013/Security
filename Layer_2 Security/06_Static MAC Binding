@@ -1,0 +1,118 @@
+Name :
+================
+Static MAC Binding
+
+Why we did this
+================
+Initially, switch ports allowed any device to connect.
+Port Security was introduced to restrict unauthorized devices.
+However, relying on dynamically learned MAC addresses was not always secure because the switch could learn the wrong device if it connected first.
+Administrators wanted complete control over which device was allowed on a port.
+To achieve this, Static MAC Binding was introduced.
+Static MAC Binding allows an administrator to manually configure the exact MAC address that is permitted on a switch port.
+
+What will happen
+================
+1. Administrator manually defines the permitted MAC address.
+2. The switch allows traffic only from the configured MAC address.
+3. Any other device connected to the port causes a security violation.
+4. The action taken depends on the configured violation mode:
+   - Protect
+   - Restrict
+   - Shutdown
+
+Example:
+
+Finance PC MAC:
+0011.2233.4455
+
+Configured on Fa0/1
+If the Finance PC is connected:
+- Traffic Allowed
+
+If another device with MAC 00AA.BBCC.DDEE is connected:
+- Security Violation Occurs
+
+Advantages and Disadvantages of this, hence what came next
+==========================================================
+
+Advantages
+----------
+1. Highest control over connected devices.
+2. Only approved devices can access the network.
+3. Simple to understand and implement.
+4. Effective against unauthorized device connections.
+5. Useful for servers, printers, and critical systems.
+
+Disadvantages
+-------------
+1. Manual configuration required.
+2. Time-consuming in large networks.
+3. Device replacement requires configuration changes.
+4. High administrative overhead.
+5. Difficult to manage hundreds or thousands of ports.
+
+Hence what came next
+--------------------
+Network administrators wanted the same security but without manually entering every MAC address.
+
+This led to:
+Sticky MAC Security
+Sticky MAC automatically learns the first connected device's MAC address and saves it into the running configuration.
+This provides similar security with much less administrative effort.
+
+One-Shot Configuration
+======================
+Switch(config)# interface fa0/1
+Switch(config-if)# switchport mode access
+Switch(config-if)# switchport port-security
+Switch(config-if)# switchport port-security maximum 1
+Switch(config-if)# switchport port-security mac-address 0011.2233.4455
+Switch(config-if)# switchport port-security violation shutdown
+Switch(config-if)# end
+
+Verification
+============
+
+show port-security
+
+show port-security interface fa0/1
+
+show port-security address
+
+Expected Result
+===============
+
+Configured MAC:
+---------------
+0011.2233.4455
+
+If Correct Device Connects:
+---------------------------
+Traffic Allowed
+
+If Other Device Connects:
+-------------------------
+Security Violation Occurs
+
+Port Status:
+------------
+Depends on violation mode configured.
+
+Summary
+=======
+
+Problem:
+Any device could connect to the switch or the wrong MAC could be dynamically learned.
+
+Solution:
+Static MAC Binding manually specifies exactly which MAC address is allowed on a switch port.
+
+Benefit:
+Provides the highest level of control over device access.
+
+Limitation:
+Manual management becomes difficult as the network grows.
+
+Next Practical:
+MAC Address Filtering
