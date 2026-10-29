@@ -1,0 +1,109 @@
+Name :
+================
+Disable Unused Ports
+
+Why we did this
+================
+In many networks, several switch ports remain unused.
+By default, if these ports are left active, anyone can physically connect a laptop, PC, router, or access point and gain network access.
+This creates a major security risk because attackers or unauthorized users can use these open ports to enter the network.
+To reduce the attack surface, administrators disable all unused switch ports.
+This is one of the simplest and most effective Layer 2 security best practices.
+
+What will happen
+================
+1. Unused switch ports are administratively shut down.
+2. No device can use these ports.
+3. If someone connects a device, no network connectivity is provided.
+4. The port remains down until an administrator enables it.
+5. The organization's attack surface is reduced.
+
+Example:
+
+Switch Ports:
+Fa0/1  -> User PC
+Fa0/2  -> IP Phone
+Fa0/3  -> Printer
+Fa0/4  -> Unused
+
+If Fa0/4 remains active:
+- Anyone can connect a device and gain network access.
+
+If Fa0/4 is shutdown:
+- Connected device receives no connectivity.
+
+Advantages and Disadvantages of this, hence what came next
+==========================================================
+Advantages
+----------
+1. Prevents unauthorized physical access.
+2. Reduces attack surface.
+3. Easy to implement.
+4. No additional hardware required.
+5. Recommended security best practice.
+6. Prevents accidental device connections.
+
+Disadvantages
+-------------
+1. Manual administration required.
+2. Ports must be enabled when new devices are added.
+3. Does not protect active ports.
+4. Provides only physical access protection.
+5. Requires proper documentation.
+
+Hence what came next
+--------------------
+Disabling unused ports is good, but attackers may still connect to an active port.
+Administrators wanted a method to isolate and trap unauthorized devices even when they connect to a switch port.
+
+This led to:
+Black Hole VLAN
+Instead of simply leaving ports unused, they can be assigned to an unused VLAN with no Layer 3 connectivity, preventing access to production networks.
+
+One-Shot Configuration
+======================
+
+Switch(config)# interface range fa0/4 - 24
+Switch(config-if-range)# shutdown
+Switch(config-if-range)# description UNUSED_PORT
+Switch(config-if-range)# end
+
+Verification
+============
+
+show interfaces status
+
+show running-config
+
+Expected Result
+===============
+
+Unused Ports:
+-------------
+Administratively Down
+
+Connected Device:
+-----------------
+No Connectivity
+
+Network Security:
+-----------------
+Improved
+
+Summary
+=======
+
+Problem:
+Unused switch ports can be used by unauthorized users to gain network access.
+
+Solution:
+Administratively shut down all unused ports.
+
+Benefit:
+Reduces physical attack vectors and strengthens Layer 2 security.
+
+Limitation:
+Only protects unused ports. Active ports still require additional security controls.
+
+Next Practical:
+Black Hole VLAN
