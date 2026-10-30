@@ -1,0 +1,126 @@
+Name :
+================
+Access Port Hardening
+
+Why we did this
+================
+By default, a switch port can dynamically negotiate its mode using DTP (Dynamic Trunking Protocol).
+
+An attacker can exploit a poorly configured switch port and turn it into a trunk port, gaining access to multiple VLANs.
+
+Administrators needed a way to ensure that user-facing ports always behave as access ports and cannot participate in trunk negotiations.
+
+This led to Access Port Hardening.
+
+Access Port Hardening forces a port to operate strictly as an access port and disables unnecessary features that could be exploited.
+
+What will happen
+================
+1. The switch port is permanently configured as an access port.
+2. Trunk negotiation is disabled.
+3. End devices such as PCs, printers, and IP phones connect normally.
+4. The port cannot automatically become a trunk.
+5. Unauthorized VLAN access attempts are prevented.
+
+Example:
+
+Fa0/1 -> User PC
+
+Without Hardening:
+- Port may negotiate trunking under certain conditions.
+
+With Hardening:
+- Port remains an access port.
+- Trunk negotiation is disabled.
+- User stays within the assigned VLAN only.
+
+Advantages and Disadvantages of this, hence what came next
+==========================================================
+
+Advantages
+----------
+1. Prevents accidental trunk formation.
+2. Reduces VLAN Hopping risks.
+3. Improves Layer 2 security.
+4. Follows Cisco security best practices.
+5. Simplifies switch port management.
+6. Protects access-layer ports from misuse.
+
+Disadvantages
+-------------
+1. Requires manual configuration.
+2. Must be adjusted if the port later becomes a trunk.
+3. Does not stop attacks originating from authorized devices.
+4. Does not provide user authentication.
+5. Additional security mechanisms are still required.
+
+Hence what came next
+--------------------
+Even after hardening access ports, attackers could still attempt VLAN-based attacks through trunk links.
+
+Administrators realized that the default Native VLAN was a common target.
+
+This led to:
+
+Native VLAN Change
+
+where the default Native VLAN is changed to an unused VLAN to reduce VLAN Hopping attack risks.
+
+One-Shot Configuration
+======================
+
+Switch(config)# interface fa0/1
+Switch(config-if)# switchport mode access
+Switch(config-if)# switchport access vlan 10
+Switch(config-if)# switchport nonegotiate
+Switch(config-if)# spanning-tree portfast
+Switch(config-if)# spanning-tree bpduguard enable
+Switch(config-if)# end
+
+Verification
+============
+
+show interfaces fa0/1 switchport
+
+show running-config interface fa0/1
+
+Expected Result
+===============
+
+Port Mode:
+----------
+Static Access
+
+DTP:
+----
+Disabled
+
+Trunking:
+---------
+Not Allowed
+
+Assigned VLAN:
+--------------
+VLAN 10
+
+Security:
+---------
+Port remains dedicated for end-user devices.
+
+Summary
+=======
+
+Problem:
+Access ports could be exploited through misconfigurations and trunk negotiations.
+
+Solution:
+Access Port Hardening forces ports to remain access ports and disables unnecessary negotiation features.
+
+Benefit:
+Prevents unauthorized trunk formation and strengthens Layer 2 security.
+
+Limitation:
+Does not protect against VLAN-based attacks on trunk links.
+
+Next Practical:
+Native VLAN Change
