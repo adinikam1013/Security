@@ -1,0 +1,164 @@
+Name :
+================
+VLAN Segmentation
+
+Why we did this
+================
+Initially, all devices in a network were placed in the same VLAN and broadcast domain.
+
+As organizations grew, this created several problems:
+
+- Excessive broadcast traffic
+- Poor network performance
+- Lack of department isolation
+- Increased security risks
+- Easy lateral movement for attackers
+
+For example:
+
+Finance PC, HR PC, Server, and Guest Laptop were all in the same network.
+
+If an attacker compromised one device, they could potentially reach all other devices.
+
+To solve this problem, VLAN Segmentation was introduced.
+
+VLAN Segmentation logically divides a physical switch into multiple isolated networks.
+
+What will happen
+================
+1. Devices are grouped into separate VLANs.
+2. Each VLAN becomes its own broadcast domain.
+3. Broadcast traffic stays within that VLAN.
+4. Departments become isolated from each other.
+5. Communication between VLANs requires a Layer 3 device.
+
+Example:
+
+VLAN 10 = Finance
+VLAN 20 = HR
+VLAN 30 = IT
+VLAN 40 = Guest
+
+Finance users can communicate within VLAN 10.
+
+HR users can communicate within VLAN 20.
+
+Direct communication between VLANs is not possible unless routing is configured.
+
+Advantages and Disadvantages of this, hence what came next
+==========================================================
+
+Advantages
+----------
+1. Improves security through isolation.
+2. Reduces broadcast traffic.
+3. Improves network performance.
+4. Makes network management easier.
+5. Limits lateral movement of attackers.
+6. Supports departmental separation.
+7. Provides logical network segmentation without additional hardware.
+
+Disadvantages
+-------------
+1. Devices in different VLANs cannot communicate directly.
+2. Requires VLAN planning and management.
+3. Misconfigured VLANs can cause connectivity issues.
+4. Does not prevent attacks within the same VLAN.
+5. Inter-VLAN communication requires routing.
+
+Hence what came next
+--------------------
+After implementing VLAN Segmentation, administrators noticed that some devices inside the same VLAN still needed isolation.
+
+For example:
+
+Guest Room 1 PC and Guest Room 2 PC belong to the same VLAN.
+
+Even though they are in the same VLAN, they should not communicate with each other.
+
+This led to:
+
+Private VLAN (PVLAN)
+
+which provides isolation between devices within the same VLAN.
+
+One-Shot Configuration
+======================
+
+Switch(config)# vlan 10
+Switch(config-vlan)# name FINANCE
+
+Switch(config)# vlan 20
+Switch(config-vlan)# name HR
+
+Switch(config)# vlan 30
+Switch(config-vlan)# name IT
+
+Switch(config)# vlan 40
+Switch(config-vlan)# name GUEST
+
+Switch(config)# interface fa0/1
+Switch(config-if)# switchport mode access
+Switch(config-if)# switchport access vlan 10
+
+Switch(config)# interface fa0/2
+Switch(config-if)# switchport mode access
+Switch(config-if)# switchport access vlan 20
+
+Switch(config)# interface fa0/3
+Switch(config-if)# switchport mode access
+Switch(config-if)# switchport access vlan 30
+
+Switch(config)# interface fa0/4
+Switch(config-if)# switchport mode access
+Switch(config-if)# switchport access vlan 40
+
+Switch(config)# end
+
+Verification
+============
+
+show vlan brief
+
+show interfaces switchport
+
+Expected Result
+===============
+
+Finance Users:
+--------------
+Can communicate with Finance VLAN devices.
+
+HR Users:
+---------
+Can communicate with HR VLAN devices.
+
+IT Users:
+---------
+Can communicate with IT VLAN devices.
+
+Guest Users:
+------------
+Remain within Guest VLAN.
+
+Inter-VLAN Communication:
+-------------------------
+Not possible without Layer 3 routing.
+
+Summary
+=======
+
+Problem:
+All devices were in the same network, creating security and performance issues.
+
+Solution:
+VLAN Segmentation separates devices into multiple isolated broadcast domains.
+
+Benefit:
+Improves security, performance, and network organization.
+
+Limitation:
+Devices within the same VLAN can still communicate freely.
+
+Next Practical:
+Private VLAN (PVLAN)
