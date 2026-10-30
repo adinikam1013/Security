@@ -1,0 +1,161 @@
+Name :
+================
+Switchport Mode Hardening
+
+Why we did this
+================
+Cisco switches support different port modes such as:
+
+- Access Mode
+- Trunk Mode
+- Dynamic Auto
+- Dynamic Desirable
+
+By default, some switch ports may use Dynamic Trunking Protocol (DTP) to negotiate trunk links.
+
+An attacker can exploit Dynamic Auto or Dynamic Desirable ports and establish an unauthorized trunk connection.
+
+This could provide access to multiple VLANs and lead to VLAN Hopping attacks.
+
+To eliminate this risk, Switchport Mode Hardening was introduced.
+
+The objective is to manually configure every switch port with its required mode and disable unnecessary negotiations.
+
+What will happen
+================
+1. Access ports are forced into Access Mode.
+2. Trunk ports are forced into Trunk Mode.
+3. DTP negotiations are disabled whenever possible.
+4. Switch ports no longer dynamically change roles.
+5. Unauthorized trunk formation is prevented.
+
+Example:
+
+Without Hardening
+
+Switch Port:
+------------
+Fa0/1 = Dynamic Auto
+
+Attacker connects a switch configured as Dynamic Desirable.
+
+Result:
+--------
+Trunk forms automatically.
+
+Attacker gains access to multiple VLANs.
+
+
+With Hardening
+
+Switch Port:
+------------
+Fa0/1 = Access Mode
+
+Result:
+--------
+No trunk negotiation occurs.
+Port remains an access port.
+
+Advantages and Disadvantages of this, hence what came next
+==========================================================
+
+Advantages
+----------
+1. Prevents unauthorized trunk formation.
+2. Reduces VLAN Hopping attack risk.
+3. Eliminates unnecessary DTP negotiations.
+4. Improves Layer 2 security posture.
+5. Provides predictable switch behavior.
+6. Follows Cisco security best practices.
+
+Disadvantages
+-------------
+1. Requires proper planning.
+2. Ports must be manually configured.
+3. Configuration changes are needed when port roles change.
+4. Does not stop attacks from already authorized devices.
+5. Additional VLAN security measures are still required.
+
+Hence what came next
+--------------------
+Even after hardening switch port modes, attackers could still exploit VLAN-related weaknesses.
+
+One of the most common weaknesses was the use of the default Native VLAN (VLAN 1).
+
+To address this, administrators started moving the Native VLAN to an unused VLAN.
+
+This led to:
+
+Native VLAN Change
+
+which helps mitigate VLAN Hopping and Double Tagging attacks.
+
+One-Shot Configuration
+======================
+
+For Access Ports
+
+Switch(config)# interface fa0/1
+Switch(config-if)# switchport mode access
+Switch(config-if)# switchport nonegotiate
+Switch(config-if)# end
+
+
+For Trunk Ports
+
+Switch(config)# interface g0/1
+Switch(config-if)# switchport trunk encapsulation dot1q
+Switch(config-if)# switchport mode trunk
+Switch(config-if)# switchport nonegotiate
+Switch(config-if)# end
+
+Verification
+============
+
+show interfaces switchport
+
+show interfaces trunk
+
+show running-config interface fa0/1
+
+Expected Result
+===============
+
+Access Port:
+------------
+Mode = Static Access
+
+Trunk Port:
+-----------
+Mode = Static Trunk
+
+DTP:
+----
+Disabled
+
+Automatic Trunk Formation:
+--------------------------
+Not Possible
+
+Security:
+---------
+Improved Layer 2 Protection
+
+Summary
+=======
+
+Problem:
+Dynamic switchport modes could allow unauthorized trunk formation.
+
+Solution:
+Force ports into their required mode and disable DTP negotiations.
+
+Benefit:
+Prevents unintended trunk links and strengthens VLAN security.
+
+Limitation:
+Native VLAN attacks are still possible.
+
+Next Practical:
+Native VLAN Change
