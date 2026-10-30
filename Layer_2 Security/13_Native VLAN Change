@@ -1,0 +1,150 @@
+Name :
+================
+Native VLAN Change
+
+Why we did this
+================
+In IEEE 802.1Q trunking, one VLAN is designated as the Native VLAN.
+
+Frames belonging to the Native VLAN are sent untagged across the trunk link.
+
+By default, Cisco switches use VLAN 1 as the Native VLAN.
+
+Attackers can exploit this behavior using VLAN Hopping attacks, especially Double Tagging attacks, to gain access to traffic from other VLANs.
+
+Since VLAN 1 is also commonly used for management and default switch operations, it becomes an attractive target.
+
+To reduce this risk, administrators change the Native VLAN from VLAN 1 to an unused VLAN.
+
+What will happen
+================
+1. A dedicated unused VLAN is created.
+2. The Native VLAN on all trunk links is changed to this unused VLAN.
+3. User devices are not placed in the Native VLAN.
+4. Untagged traffic is placed into the unused Native VLAN.
+5. VLAN Hopping risks are reduced.
+
+Example:
+
+Before Change
+
+Native VLAN = VLAN 1
+
+Trunk Link:
+Switch A -------- Switch B
+
+Risk:
+An attacker may exploit VLAN 1 using Double Tagging attacks.
+
+
+After Change
+
+Native VLAN = VLAN 999
+
+Trunk Link:
+Switch A -------- Switch B
+
+Result:
+Untagged traffic enters VLAN 999 which contains no users and no resources.
+
+Advantages and Disadvantages of this, hence what came next
+==========================================================
+
+Advantages
+----------
+1. Reduces VLAN Hopping attack risk.
+2. Removes dependence on VLAN 1.
+3. Improves trunk security.
+4. Follows Cisco security best practices.
+5. Easy to implement.
+6. Works with existing VLAN designs.
+
+Disadvantages
+-------------
+1. Must be configured on both ends of a trunk.
+2. Native VLAN mismatches can cause connectivity issues.
+3. Does not completely eliminate VLAN attacks.
+4. Requires proper documentation.
+5. Additional VLAN security measures are still needed.
+
+Hence what came next
+--------------------
+Changing the Native VLAN reduces risk, but attackers may still attempt VLAN Hopping through trunk negotiation mechanisms.
+
+Administrators realized that preventing VLAN Hopping entirely requires disabling unnecessary trunk negotiations and explicitly controlling VLAN access.
+
+This led to:
+
+VLAN Hopping Prevention
+
+which combines:
+- Native VLAN Change
+- DTP Disable
+- Access Port Hardening
+- Trunk Port Hardening
+
+to prevent unauthorized VLAN access.
+
+One-Shot Configuration
+======================
+
+Create the Native VLAN
+
+Switch(config)# vlan 999
+Switch(config-vlan)# name NATIVE_VLAN
+Switch(config-vlan)# exit
+
+
+Configure the Trunk
+
+Switch(config)# interface g0/1
+Switch(config-if)# switchport mode trunk
+Switch(config-if)# switchport trunk native vlan 999
+Switch(config-if)# switchport nonegotiate
+Switch(config-if)# end
+
+(Note: Configure the same Native VLAN on the switch at the other end of the trunk.)
+
+Verification
+============
+
+show interfaces trunk
+
+show vlan brief
+
+Expected Result
+===============
+
+Native VLAN:
+------------
+999
+
+Trunk Status:
+-------------
+Operational
+
+VLAN 1:
+-------
+No longer used as Native VLAN
+
+Security:
+---------
+Reduced risk of Double Tagging and VLAN Hopping attacks
+
+Summary
+=======
+
+Problem:
+VLAN 1 as the default Native VLAN can be exploited during VLAN Hopping attacks.
+
+Solution:
+Move the Native VLAN to an unused VLAN such as VLAN 999.
+
+Benefit:
+Improves trunk security and reduces attack opportunities.
+
+Limitation:
+Native VLAN attacks are reduced but not completely eliminated.
+
+Next Practical:
+VLAN Hopping Prevention
