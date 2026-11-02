@@ -1,0 +1,189 @@
+Name :
+================
+Private VLAN (PVLAN)
+
+Why we did this
+================
+VLAN Segmentation separates departments into different VLANs.
+
+Example:
+
+VLAN 10 = Finance
+VLAN 20 = HR
+VLAN 30 = IT
+
+This prevents communication between different VLANs unless Layer 3 routing exists.
+
+However, a problem still remains.
+
+Devices within the same VLAN can communicate freely.
+
+Example:
+
+Guest PC1 ---> Guest PC2
+Guest PC3 ---> Guest PC4
+
+All devices belong to VLAN 100.
+
+Although they are in the same VLAN, they may not be allowed to communicate with each other.
+
+Common examples include:
+
+- Hotel Networks
+- ISP Broadband Networks
+- Data Centers
+- DMZ Networks
+- Guest WiFi Networks
+
+To solve this problem, Cisco introduced Private VLANs (PVLANs).
+
+PVLANs allow devices to remain in the same VLAN while controlling who they can communicate with.
+
+What will happen
+================
+A Primary VLAN is created.
+
+Secondary VLANs are mapped to the Primary VLAN.
+
+Secondary VLANs can be:
+
+1. Isolated VLAN
+   - Devices cannot communicate with each other.
+   - Devices can only communicate with the Promiscuous Port.
+
+2. Community VLAN
+   - Devices within the same community can communicate.
+   - Different communities cannot communicate.
+
+3. Promiscuous Port
+   - Can communicate with all devices.
+   - Usually connected to gateways, routers, servers or firewalls.
+
+Example
+
+Gateway
+   |
+Promiscuous Port
+   |
+-------------------
+|                 |
+Guest1         Guest2
+
+Guest1 and Guest2:
+- Cannot communicate with each other
+- Can communicate with Gateway
+
+Advantages and Disadvantages of this, hence what came next
+==========================================================
+
+Advantages
+----------
+1. Provides isolation within the same VLAN.
+2. Prevents lateral movement attacks.
+3. Reduces security risks.
+4. Conserves VLAN IDs.
+5. Ideal for hotels and guest networks.
+6. Useful in data center environments.
+7. Increases Layer 2 security without creating many VLANs.
+
+Disadvantages
+-------------
+1. More complex configuration.
+2. Troubleshooting can be difficult.
+3. Not supported on all switch models.
+4. Requires careful planning.
+5. Can become difficult to manage in very large environments.
+
+Hence what came next
+--------------------
+Even after isolating users within the same VLAN, attackers could still attempt to connect unauthorized devices to switch ports.
+
+Administrators needed stronger control over which devices were allowed on a port and protection against rogue devices.
+
+This led to:
+
+Trunk Port Security
+
+which focuses on securing trunk links and controlling VLAN traffic between switches.
+
+One-Shot Configuration
+======================
+
+Create Primary VLAN
+
+Switch(config)# vlan 100
+Switch(config-vlan)# private-vlan primary
+
+
+Create Isolated VLAN
+
+Switch(config)# vlan 101
+Switch(config-vlan)# private-vlan isolated
+
+
+Associate Secondary VLAN
+
+Switch(config)# vlan 100
+Switch(config-vlan)# private-vlan association 101
+
+
+Configure Promiscuous Port
+
+Switch(config)# interface fa0/1
+Switch(config-if)# switchport mode private-vlan promiscuous
+Switch(config-if)# switchport private-vlan mapping 100 101
+
+
+Configure Host Ports
+
+Switch(config)# interface fa0/2
+Switch(config-if)# switchport mode private-vlan host
+Switch(config-if)# switchport private-vlan host-association 100 101
+
+Switch(config)# interface fa0/3
+Switch(config-if)# switchport mode private-vlan host
+Switch(config-if)# switchport private-vlan host-association 100 101
+
+Verification
+============
+
+show vlan private-vlan
+
+show interfaces switchport
+
+Expected Result
+===============
+
+Host1 -> Host2
+--------------
+Communication Blocked
+
+Host1 -> Gateway
+----------------
+Allowed
+
+Host2 -> Gateway
+----------------
+Allowed
+
+Isolation
+---------
+Successfully Enforced
+
+Summary
+=======
+
+Problem:
+Devices inside the same VLAN could communicate with each other.
+
+Solution:
+Private VLAN isolates devices within the same VLAN.
+
+Benefit:
+Prevents lateral movement while still allowing communication with shared resources such as gateways and servers.
+
+Limitation:
+Configuration is more complex than normal VLANs.
+
+Next Practical:
+Trunk Port Security
