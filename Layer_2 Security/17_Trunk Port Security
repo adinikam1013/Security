@@ -1,0 +1,188 @@
+Name :
+================
+Trunk Port Security
+
+Why we did this
+================
+Access ports connect end devices such as PCs, printers, and IP phones.
+
+However, switch-to-switch communication occurs through trunk ports.
+
+Trunk ports carry traffic for multiple VLANs simultaneously.
+
+Because they transport traffic for many VLANs, trunk ports become a critical target for attackers.
+
+If a trunk port is compromised, an attacker may gain access to multiple VLANs across the network.
+
+Common risks include:
+
+- Unauthorized trunk formation
+- VLAN Hopping attacks
+- Native VLAN attacks
+- Rogue switch connections
+- Unauthorized VLAN propagation
+
+To reduce these risks, Trunk Port Security was introduced.
+
+The goal is to allow only legitimate VLAN traffic on authorized trunk links.
+
+What will happen
+================
+1. Trunk ports are manually configured.
+2. DTP negotiation is disabled.
+3. Only required VLANs are allowed.
+4. Native VLAN is changed from VLAN 1.
+5. Unauthorized devices cannot automatically form trunk links.
+6. Unnecessary VLAN traffic is blocked.
+7. Network segmentation becomes more secure.
+
+Example
+
+Without Trunk Security
+----------------------
+
+Switch A -------- Switch B
+
+Allowed VLANs:
+All VLANs
+
+DTP:
+Enabled
+
+Result:
+- Larger attack surface
+- Easier VLAN Hopping
+- Unauthorized VLAN access possible
+
+
+With Trunk Security
+-------------------
+
+Switch A -------- Switch B
+
+Allowed VLANs:
+10,20,30
+
+DTP:
+Disabled
+
+Native VLAN:
+999
+
+Result:
+- Better security
+- Reduced attack surface
+- Controlled VLAN communication
+
+Advantages and Disadvantages of this, hence what came next
+==========================================================
+
+Advantages
+----------
+1. Protects critical inter-switch links.
+2. Prevents unauthorized trunk formation.
+3. Reduces VLAN Hopping risk.
+4. Limits VLAN exposure.
+5. Improves network segmentation.
+6. Follows Cisco security best practices.
+7. Reduces unnecessary broadcast traffic.
+
+Disadvantages
+-------------
+1. Requires proper VLAN planning.
+2. Manual configuration needed.
+3. VLAN changes require trunk updates.
+4. Misconfiguration can cause connectivity issues.
+5. Does not validate DHCP servers.
+
+Hence what came next
+--------------------
+Even after securing trunk links, attackers could still introduce a Rogue DHCP Server.
+
+A rogue DHCP server can:
+
+- Give incorrect IP addresses
+- Redirect traffic
+- Perform Man-in-the-Middle attacks
+- Cause network outages
+
+Administrators needed a way to identify trusted DHCP sources.
+
+This led to:
+
+DHCP Snooping
+
+which allows switches to trust only authorized DHCP servers and block rogue DHCP responses.
+
+One-Shot Configuration
+======================
+
+Create Native VLAN
+
+Switch(config)# vlan 999
+Switch(config-vlan)# name NATIVE_VLAN
+
+
+Configure Secure Trunk
+
+Switch(config)# interface g0/1
+Switch(config-if)# switchport mode trunk
+Switch(config-if)# switchport trunk native vlan 999
+Switch(config-if)# switchport trunk allowed vlan 10,20,30
+Switch(config-if)# switchport nonegotiate
+Switch(config-if)# end
+
+
+Verification
+============
+
+show interfaces trunk
+
+show interfaces switchport
+
+show running-config interface g0/1
+
+Expected Result
+===============
+
+Port Mode:
+----------
+Trunk
+
+Allowed VLANs:
+--------------
+10,20,30
+
+Native VLAN:
+------------
+999
+
+DTP:
+----
+Disabled
+
+Unauthorized Trunk Formation:
+-----------------------------
+Prevented
+
+Security:
+---------
+Improved Trunk Link Protection
+
+Summary
+=======
+
+Problem:
+Trunk ports carry traffic from multiple VLANs and are attractive attack targets.
+
+Solution:
+Secure trunk ports by manually configuring trunking, restricting VLANs, changing the Native VLAN, and disabling DTP.
+
+Benefit:
+Reduces VLAN-based attacks and protects inter-switch communications.
+
+Limitation:
+Does not protect against Rogue DHCP Servers.
+
+Next Practical:
+DHCP Snooping
