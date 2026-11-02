@@ -1,0 +1,161 @@
+Name :
+================
+Voice VLAN Security
+
+Why we did this
+================
+As organizations started deploying IP Phones, both voice and data traffic began sharing the same physical switch infrastructure.
+
+Example:
+
+PC ---- IP Phone ---- Switch
+
+Without proper separation:
+
+- Voice traffic and data traffic remain in the same VLAN.
+- Broadcast traffic increases.
+- Voice quality may degrade.
+- Attackers can potentially access VoIP devices.
+- Voice packets can be intercepted or manipulated.
+
+To solve this problem, Cisco introduced Voice VLANs.
+
+A Voice VLAN places IP phones in a separate VLAN while PCs remain in the Data VLAN.
+
+This improves security, manageability, and voice quality.
+
+What will happen
+================
+1. The switch port supports both Data VLAN and Voice VLAN.
+2. The IP Phone joins the Voice VLAN.
+3. The PC behind the phone joins the Data VLAN.
+4. Voice traffic remains isolated from user traffic.
+5. QoS can prioritize voice packets.
+6. Security policies can be applied separately.
+
+Example
+
+PC VLAN       = VLAN 10
+Voice VLAN    = VLAN 20
+
+PC --------- IP Phone --------- Switch
+
+Result:
+
+PC Traffic
+-----------
+VLAN 10
+
+Voice Traffic
+--------------
+VLAN 20
+
+Both share the same physical cable while remaining logically separated.
+
+Advantages and Disadvantages of this, hence what came next
+==========================================================
+
+Advantages
+----------
+1. Separates Voice and Data traffic.
+2. Improves voice quality.
+3. Simplifies troubleshooting.
+4. Reduces broadcast traffic for phones.
+5. Allows separate security policies.
+6. Supports QoS prioritization.
+7. Improves VoIP security.
+
+Disadvantages
+-------------
+1. Requires VLAN planning.
+2. Additional switch configuration is needed.
+3. Rogue devices may attempt to join the Voice VLAN.
+4. Voice VLAN information can sometimes be discovered through CDP or LLDP.
+5. Additional security controls are required.
+
+Hence what came next
+--------------------
+After implementing Voice VLANs, administrators discovered that attackers could connect unauthorized devices to switch ports and attempt to gain access using fake MAC addresses.
+
+They needed stronger control over access ports and connected devices.
+
+This led to:
+
+Trunk Port Security
+
+which focuses on securing trunk links and ensuring only authorized VLAN traffic passes between switches.
+
+One-Shot Configuration
+======================
+
+Create Data VLAN
+
+Switch(config)# vlan 10
+Switch(config-vlan)# name DATA
+
+
+Create Voice VLAN
+
+Switch(config)# vlan 20
+Switch(config-vlan)# name VOICE
+
+
+Configure Access Port
+
+Switch(config)# interface fa0/1
+Switch(config-if)# switchport mode access
+Switch(config-if)# switchport access vlan 10
+Switch(config-if)# switchport voice vlan 20
+Switch(config-if)# spanning-tree portfast
+Switch(config-if)# mls qos trust cos
+Switch(config-if)# end
+
+Verification
+============
+
+show vlan brief
+
+show interfaces switchport
+
+show interfaces fa0/1 switchport
+
+Expected Result
+===============
+
+PC Traffic:
+-----------
+VLAN 10
+
+IP Phone Traffic:
+-----------------
+VLAN 20
+
+Voice and Data:
+---------------
+Logically Separated
+
+QoS:
+----
+Voice Traffic Prioritized
+
+Security:
+---------
+Improved through VLAN separation
+
+Summary
+=======
+
+Problem:
+Voice and data devices shared the same network, creating security and performance concerns.
+
+Solution:
+Use a dedicated Voice VLAN for IP Phones and a separate Data VLAN for PCs.
+
+Benefit:
+Improves security, voice quality, network segmentation, and QoS.
+
+Limitation:
+Voice devices still require authentication and protection against unauthorized access.
+
+Next Practical:
+Trunk Port Security
