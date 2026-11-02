@@ -1,0 +1,193 @@
+Name :
+================
+VLAN Hopping Prevention
+
+Why we did this
+================
+After implementing VLAN Segmentation, administrators discovered that attackers could sometimes gain access to VLANs they were not authorized to access.
+This attack is known as VLAN Hopping.
+
+VLAN Hopping allows an attacker connected to one VLAN to send traffic into another VLAN without proper authorization.
+
+The two most common VLAN Hopping techniques are:
+
+1. Switch Spoofing Attack
+   - Attacker pretends to be a switch.
+   - DTP negotiation forms a trunk.
+   - Attacker gains access to multiple VLANs.
+
+2. Double Tagging Attack
+   - Attacker sends frames with two VLAN tags.
+   - First switch removes the outer tag.
+   - Frame enters another VLAN unexpectedly.
+
+To prevent these attacks, multiple Layer 2 security controls must be implemented together.
+
+What will happen
+================
+1. Access ports are forced into Access Mode.
+2. DTP negotiation is disabled.
+3. Native VLAN is changed from VLAN 1.
+4. Unused ports are disabled.
+5. Trunk ports are manually configured.
+6. Unauthorized devices cannot create trunk connections.
+7. VLAN Hopping attack opportunities are significantly reduced.
+
+Example
+
+Without Protection
+------------------
+
+Attacker PC
+     |
+     |
+Switch Port (Dynamic Auto)
+
+Attacker Spoofs Switch
+         ↓
+
+Trunk Created
+
+Result:
+Access to Multiple VLANs
+
+
+With Protection
+---------------
+
+Attacker PC
+     |
+     |
+Access Port (Static Access)
+
+DTP Disabled
+
+Result:
+No Trunk Formation
+No VLAN Hopping
+
+Advantages and Disadvantages of this, hence what came next
+==========================================================
+
+Advantages
+----------
+1. Prevents Switch Spoofing attacks.
+2. Reduces Double Tagging attacks.
+3. Improves VLAN isolation.
+4. Strengthens trunk security.
+5. Follows Cisco security best practices.
+6. Easy to implement.
+7. Reduces unauthorized VLAN access.
+
+Disadvantages
+-------------
+1. Requires proper switch configuration.
+2. Must be applied consistently across the network.
+3. Does not stop attacks occurring within the same VLAN.
+4. Configuration mistakes can affect connectivity.
+5. Requires administrative effort in large environments.
+
+Hence what came next
+--------------------
+Even after VLAN Hopping was prevented, devices inside the same VLAN could still attack each other.
+
+For example:
+
+Guest PC 1 and Guest PC 2 may belong to the same VLAN.
+
+Although they are in the same VLAN, they should not be able to communicate with each other.
+
+This led to:
+
+Private VLAN (PVLAN)
+
+which provides isolation between devices inside the same VLAN.
+
+One-Shot Configuration
+======================
+
+Create Native VLAN
+
+Switch(config)# vlan 999
+Switch(config-vlan)# name NATIVE_VLAN
+
+
+Configure Access Ports
+
+Switch(config)# interface range fa0/1 - 24
+Switch(config-if-range)# switchport mode access
+Switch(config-if-range)# switchport nonegotiate
+
+
+Configure Trunk Ports
+
+Switch(config)# interface g0/1
+Switch(config-if)# switchport mode trunk
+Switch(config-if)# switchport trunk native vlan 999
+Switch(config-if)# switchport nonegotiate
+
+
+Disable Unused Ports
+
+Switch(config)# interface range fa0/20 - 24
+Switch(config-if-range)# switchport access vlan 999
+Switch(config-if-range)# shutdown
+
+Verification
+============
+
+show interfaces trunk
+
+show interfaces switchport
+
+show vlan brief
+
+Expected Result
+===============
+
+Access Ports:
+-------------
+Static Access Mode
+
+Trunk Ports:
+------------
+Static Trunk Mode
+
+DTP:
+----
+Disabled
+
+Native VLAN:
+------------
+999
+
+Unused Ports:
+-------------
+Shutdown
+
+VLAN Hopping:
+-------------
+Prevented
+
+Summary
+=======
+
+Problem:
+Attackers could exploit trunk negotiations and VLAN tagging mechanisms to gain access to unauthorized VLANs.
+
+Solution:
+Implement VLAN Hopping Prevention using:
+- Access Port Hardening
+- Trunk Port Hardening
+- DTP Disable
+- Native VLAN Change
+- Unused Port Security
+
+Benefit:
+Prevents unauthorized access to VLANs and strengthens Layer 2 segmentation.
+
+Limitation:
+Devices within the same VLAN can still communicate freely.
+
+Next Practical:
+Private VLAN (PVLAN)
