@@ -1,0 +1,168 @@
+Name :
+================
+DTP Disable (Dynamic Trunking Protocol Disable)
+
+Why we did this
+================
+Cisco switches use DTP (Dynamic Trunking Protocol) to automatically negotiate trunk links between switches.
+
+By default, some interfaces may be configured as:
+
+- Dynamic Auto
+- Dynamic Desirable
+
+An attacker can exploit DTP by connecting a rogue switch and pretending to be a legitimate switch.
+
+The switch may automatically form a trunk connection.
+
+Once the trunk is established, the attacker may gain access to multiple VLANs and launch VLAN Hopping attacks.
+
+To prevent automatic trunk negotiation, DTP is disabled.
+
+What will happen
+================
+1. The switch stops sending DTP negotiation packets.
+2. The port no longer attempts to form a trunk automatically.
+3. Trunks must be configured manually.
+4. Rogue switches cannot negotiate trunk links.
+5. VLAN Hopping attack opportunities are reduced.
+
+Example
+
+Without DTP Disable
+-------------------
+
+Switch Port:
+Dynamic Auto
+
+Attacker Switch:
+Dynamic Desirable
+
+Result:
+--------
+Trunk Link Created
+
+Attacker gains access to multiple VLANs.
+
+
+With DTP Disabled
+-----------------
+
+Switch Port:
+Static Access or Static Trunk
+
+DTP:
+Disabled
+
+Result:
+--------
+No Negotiation Occurs
+No Unauthorized Trunk Forms
+
+Advantages and Disadvantages of this, hence what came next
+==========================================================
+
+Advantages
+----------
+1. Prevents unauthorized trunk formation.
+2. Reduces VLAN Hopping attacks.
+3. Improves trunk security.
+4. Eliminates unnecessary DTP traffic.
+5. Provides predictable switch behavior.
+6. Follows Cisco security best practices.
+7. Reduces attack surface.
+
+Disadvantages
+-------------
+1. Trunks must be configured manually.
+2. Additional administrative effort is required.
+3. Misconfigured trunk ports can affect connectivity.
+4. Does not stop attacks originating from authorized trunk ports.
+5. Does not validate VLAN traffic itself.
+
+Hence what came next
+--------------------
+Even after disabling DTP, attackers could still connect a device and attempt to obtain network settings from a rogue DHCP server.
+
+A rogue DHCP server could:
+
+- Provide incorrect IP addresses
+- Redirect traffic
+- Launch Man-in-the-Middle attacks
+- Cause network outages
+
+Administrators needed a way to trust only legitimate DHCP servers.
+
+This led to:
+
+DHCP Snooping
+
+which identifies trusted DHCP ports and blocks DHCP responses from unauthorized devices.
+
+One-Shot Configuration
+======================
+
+For Access Ports
+
+Switch(config)# interface fa0/1
+Switch(config-if)# switchport mode access
+Switch(config-if)# switchport nonegotiate
+Switch(config-if)# end
+
+
+For Trunk Ports
+
+Switch(config)# interface g0/1
+Switch(config-if)# switchport mode trunk
+Switch(config-if)# switchport nonegotiate
+Switch(config-if)# end
+
+Verification
+============
+
+show interfaces switchport
+
+show running-config interface fa0/1
+
+show running-config interface g0/1
+
+Expected Result
+===============
+
+DTP:
+----
+Disabled
+
+Automatic Trunk Negotiation:
+----------------------------
+Not Possible
+
+Access Ports:
+-------------
+Remain Access Ports
+
+Trunk Ports:
+------------
+Remain Trunk Ports
+
+Security:
+---------
+Improved Protection Against Rogue Switches
+
+Summary
+=======
+
+Problem:
+Attackers could exploit DTP to form unauthorized trunk links and access multiple VLANs.
+
+Solution:
+Disable DTP using the "switchport nonegotiate" command.
+
+Benefit:
+Prevents automatic trunk formation and reduces VLAN Hopping attacks.
+
+Limitation:
+Rogue DHCP servers can still impact the network.
+
+Next Practical:
+DHCP Snooping
