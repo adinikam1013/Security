@@ -1,0 +1,195 @@
+Name :
+================
+DHCP Snooping
+
+Why we did this
+================
+In a network, clients obtain IP addresses from a DHCP Server.
+
+Normally, clients trust the first DHCP Offer they receive.
+
+An attacker can exploit this by introducing a Rogue DHCP Server into the network.
+
+The Rogue DHCP Server may provide:
+
+- Fake IP addresses
+- Fake Default Gateway
+- Fake DNS Server
+- Invalid Network Settings
+
+This can lead to:
+
+- Man-in-the-Middle Attacks
+- Traffic Redirection
+- Network Outages
+- User Connectivity Issues
+
+To solve this problem, Cisco introduced DHCP Snooping.
+
+DHCP Snooping allows the switch to identify trusted DHCP ports and block DHCP messages from unauthorized devices.
+
+What will happen
+================
+1. Administrator marks legitimate DHCP Server ports as Trusted.
+2. All user-facing ports remain Untrusted.
+3. DHCP Replies received on Untrusted ports are dropped.
+4. Only the authorized DHCP Server can issue IP addresses.
+5. Switch builds a DHCP Snooping Binding Table containing:
+   - MAC Address
+   - IP Address
+   - VLAN
+   - Interface
+   - Lease Time
+
+This database is later used by:
+
+- Dynamic ARP Inspection (DAI)
+- IP Source Guard
+
+Example
+
+Without DHCP Snooping
+---------------------
+
+PC -------- Rogue DHCP Server
+
+Result:
+--------
+PC receives incorrect IP configuration.
+
+
+With DHCP Snooping
+------------------
+
+PC -------- Switch -------- Legitimate DHCP Server
+
+Rogue DHCP Offers:
+Dropped
+
+Legitimate DHCP Offers:
+Allowed
+
+Result:
+--------
+Client receives valid network settings.
+
+Advantages and Disadvantages of this, hence what came next
+==========================================================
+
+Advantages
+----------
+1. Prevents Rogue DHCP Servers.
+2. Protects users from fake IP assignments.
+3. Helps prevent Man-in-the-Middle attacks.
+4. Creates DHCP Binding Database.
+5. Required for Dynamic ARP Inspection.
+6. Required for IP Source Guard.
+7. Improves Layer 2 security posture.
+
+Disadvantages
+-------------
+1. Requires proper trusted port configuration.
+2. Misconfiguration can block legitimate DHCP traffic.
+3. Additional switch processing is required.
+4. Static IP devices are not added to the binding database.
+5. Does not prevent ARP Spoofing attacks directly.
+
+Hence what came next
+--------------------
+Even after blocking Rogue DHCP Servers, attackers could still perform ARP Spoofing attacks.
+
+An attacker could send fake ARP messages and convince devices that:
+
+"Hey, I am the Default Gateway."
+
+This allows traffic interception and Man-in-the-Middle attacks.
+
+Since DHCP Snooping already created a trusted IP-MAC database, Cisco used this database to validate ARP packets.
+
+This led to:
+
+Dynamic ARP Inspection (DAI)
+
+which verifies ARP packets before forwarding them.
+
+One-Shot Configuration
+======================
+
+Enable DHCP Snooping
+
+Switch(config)# ip dhcp snooping
+
+Enable DHCP Snooping for VLANs
+
+Switch(config)# ip dhcp snooping vlan 10,20,30
+
+Configure Trusted Port
+(Port Connected to DHCP Server)
+
+Switch(config)# interface g0/1
+Switch(config-if)# ip dhcp snooping trust
+
+Configure User Ports
+(Default is Untrusted)
+
+Switch(config)# interface range fa0/1-24
+Switch(config-if-range)# no ip dhcp snooping trust
+
+(Optional) Configure Rate Limit
+
+Switch(config)# interface fa0/1
+Switch(config-if)# ip dhcp snooping limit rate 15
+
+Verification
+============
+
+show ip dhcp snooping
+
+show ip dhcp snooping binding
+
+show ip dhcp snooping statistics
+
+Expected Result
+===============
+
+DHCP Server Port:
+-----------------
+Trusted
+
+User Ports:
+-----------
+Untrusted
+
+Rogue DHCP Replies:
+-------------------
+Dropped
+
+Legitimate DHCP Replies:
+------------------------
+Allowed
+
+Binding Table:
+--------------
+Automatically Created
+
+Security:
+---------
+Rogue DHCP Protection Enabled
+
+Summary
+=======
+
+Problem:
+Attackers could introduce Rogue DHCP Servers and provide false network settings.
+
+Solution:
+DHCP Snooping allows only trusted DHCP Servers to send DHCP responses.
+
+Benefit:
+Prevents Rogue DHCP attacks and creates a trusted IP-MAC binding database.
+
+Limitation:
+Does not stop ARP Spoofing attacks.
+
+Next Practical:
+DHCP Snooping Rate Limiting
