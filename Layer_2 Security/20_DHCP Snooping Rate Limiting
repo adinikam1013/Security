@@ -1,0 +1,182 @@
+Name :
+================
+DHCP Snooping Rate Limiting
+
+Why we did this
+================
+DHCP Snooping protects the network from Rogue DHCP Servers.
+
+However, attackers found another way to attack DHCP services.
+
+They started sending thousands of DHCP Discover messages to the DHCP Server.
+
+This attack is called:
+
+DHCP Starvation Attack
+
+The goal is to exhaust all available IP addresses in the DHCP pool.
+
+Once the DHCP pool becomes empty:
+
+- Legitimate users cannot obtain IP addresses.
+- Network connectivity is disrupted.
+- Attackers may introduce a Rogue DHCP Server.
+
+To prevent excessive DHCP requests, Cisco introduced DHCP Snooping Rate Limiting.
+
+What will happen
+================
+1. Administrator sets a maximum number of DHCP packets allowed per second.
+2. The switch monitors DHCP traffic on untrusted ports.
+3. If DHCP packets exceed the configured threshold:
+   - Packets are dropped.
+   - Security violation occurs.
+   - Port may be error-disabled.
+4. DHCP Starvation attacks are prevented.
+
+Example
+
+Without Rate Limiting
+---------------------
+
+Attacker PC
+      |
+      |
+Thousands of DHCP Requests
+      |
+      |
+Switch ------ DHCP Server
+
+Result:
+--------
+DHCP Pool Exhausted
+
+
+With Rate Limiting
+------------------
+
+Attacker PC
+      |
+      |
+Hundreds of DHCP Requests
+      |
+      |
+Switch
+
+Configured Limit:
+15 Packets Per Second
+
+Result:
+--------
+Excess Packets Dropped
+DHCP Pool Protected
+
+Advantages and Disadvantages of this, hence what came next
+==========================================================
+
+Advantages
+----------
+1. Prevents DHCP Starvation attacks.
+2. Protects DHCP address pools.
+3. Prevents denial-of-service attacks against DHCP.
+4. Improves network stability.
+5. Works with DHCP Snooping.
+6. Protects legitimate users.
+7. Simple to configure.
+
+Disadvantages
+-------------
+1. Incorrect limits may block valid traffic.
+2. Different environments require different thresholds.
+3. Additional monitoring is required.
+4. Only protects DHCP traffic.
+5. Does not stop Rogue DHCP Servers by itself (requires DHCP Snooping).
+
+Hence what came next
+--------------------
+Even after protecting DHCP servers, attackers could still introduce unauthorized DHCP servers into the network.
+
+Administrators needed a method to identify and block those rogue servers.
+
+This led to:
+
+Rogue DHCP Detection
+
+which focuses on identifying unauthorized devices attempting to provide DHCP services.
+
+One-Shot Configuration
+======================
+
+Enable DHCP Snooping
+
+Switch(config)# ip dhcp snooping
+Switch(config)# ip dhcp snooping vlan 10,20,30
+
+
+Configure Trusted Port
+(DHCP Server Port)
+
+Switch(config)# interface g0/1
+Switch(config-if)# ip dhcp snooping trust
+
+
+Configure Rate Limit on User Ports
+
+Switch(config)# interface fa0/1
+Switch(config-if)# ip dhcp snooping limit rate 15
+
+Switch(config)# interface fa0/2
+Switch(config-if)# ip dhcp snooping limit rate 15
+
+Switch(config)# interface fa0/3
+Switch(config-if)# ip dhcp snooping limit rate 15
+
+Verification
+============
+
+show ip dhcp snooping
+
+show ip dhcp snooping statistics
+
+show ip dhcp snooping binding
+
+Expected Result
+===============
+
+DHCP Requests:
+--------------
+Allowed up to configured threshold
+
+Excess DHCP Requests:
+---------------------
+Dropped
+
+DHCP Starvation Attack:
+-----------------------
+Prevented
+
+DHCP Pool:
+----------
+Protected
+
+Security:
+---------
+Enhanced DHCP Protection
+
+Summary
+=======
+
+Problem:
+Attackers could send excessive DHCP requests and exhaust the DHCP address pool.
+
+Solution:
+DHCP Snooping Rate Limiting restricts the number of DHCP packets allowed per second on untrusted ports.
+
+Benefit:
+Protects DHCP services from starvation and denial-of-service attacks.
+
+Limitation:
+Does not identify unauthorized DHCP servers.
+
+Next Practical:
+Rogue DHCP Detection
