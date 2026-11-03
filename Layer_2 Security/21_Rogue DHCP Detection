@@ -1,0 +1,169 @@
+Name :
+================
+Rogue DHCP Detection
+
+Why we did this
+================
+DHCP Snooping protects the network by allowing DHCP replies only from trusted ports.
+
+However, administrators still need visibility into who is attempting to act as a DHCP Server.
+
+An attacker may connect:
+
+- Personal Router
+- WiFi Hotspot
+- Home Broadband Router
+- Unauthorized DHCP Server
+
+These devices can start distributing incorrect IP addresses and disrupt the network.
+
+Administrators therefore need a method to identify and detect unauthorized DHCP Servers before they impact users.
+
+This led to Rogue DHCP Detection.
+
+Rogue DHCP Detection helps identify devices attempting to provide DHCP services from unauthorized ports.
+
+What will happen
+================
+1. DHCP Snooping monitors DHCP traffic.
+2. User ports remain untrusted.
+3. If a device sends DHCP Offer or DHCP ACK messages on an untrusted port:
+   - The packet is dropped.
+   - The event is logged.
+   - The administrator can identify the source port.
+4. The rogue DHCP device can be traced and removed.
+
+Example
+
+Legitimate DHCP Server
+        |
+        |
+      G0/1
+   (Trusted)
+
+        Switch
+      /       \
+     /         \
+ User PC     Rogue Router
+
+Result:
+--------
+Legitimate DHCP Server:
+Allowed
+
+Rogue DHCP Server:
+Detected and Blocked
+
+Advantages and Disadvantages of this, hence what came next
+==========================================================
+
+Advantages
+----------
+1. Identifies unauthorized DHCP Servers.
+2. Protects users from incorrect IP configurations.
+3. Prevents traffic redirection.
+4. Enhances DHCP Snooping security.
+5. Helps locate rogue devices quickly.
+6. Improves network visibility.
+7. Reduces troubleshooting time.
+
+Disadvantages
+-------------
+1. Requires DHCP Snooping.
+2. Trusted ports must be configured correctly.
+3. Does not stop DHCP Starvation attacks by itself.
+4. Requires monitoring and log review.
+5. Static IP devices are not tracked through DHCP bindings.
+
+Hence what came next
+--------------------
+After securing DHCP services, attackers looked for another attack vector.
+
+Instead of sending fake DHCP information, they started exhausting DHCP address pools by sending thousands of fake DHCP requests.
+
+This attack is called:
+
+DHCP Starvation Attack
+
+The attack consumes all available IP addresses, preventing legitimate users from obtaining connectivity.
+
+This led to:
+
+DHCP Starvation Attack Demonstration
+
+so administrators could understand how the attack works and how DHCP Snooping Rate Limiting mitigates it.
+
+One-Shot Configuration
+======================
+
+Enable DHCP Snooping
+
+Switch(config)# ip dhcp snooping
+
+Switch(config)# ip dhcp snooping vlan 10,20,30
+
+
+Configure Trusted DHCP Server Port
+
+Switch(config)# interface g0/1
+Switch(config-if)# ip dhcp snooping trust
+
+
+User Ports Remain Untrusted
+(Default Behavior)
+
+Switch(config)# interface range fa0/1-24
+Switch(config-if-range)# no ip dhcp snooping trust
+
+
+Verification
+============
+
+show ip dhcp snooping
+
+show ip dhcp snooping binding
+
+show ip dhcp snooping statistics
+
+show logging
+
+Expected Result
+===============
+
+Authorized DHCP Server:
+-----------------------
+Allowed
+
+DHCP Offers from User Ports:
+----------------------------
+Dropped
+
+Rogue DHCP Device:
+------------------
+Detected
+
+Security Logs:
+--------------
+Generated
+
+Client IP Addresses:
+--------------------
+Received only from legitimate DHCP Server
+
+Summary
+=======
+
+Problem:
+Unauthorized devices could act as DHCP Servers and distribute incorrect network information.
+
+Solution:
+Use DHCP Snooping to detect and block DHCP replies from untrusted ports.
+
+Benefit:
+Protects users from rogue DHCP servers and improves network visibility.
+
+Limitation:
+Does not prevent DHCP Starvation attacks.
+
+Next Practical:
+DHCP Starvation Attack
