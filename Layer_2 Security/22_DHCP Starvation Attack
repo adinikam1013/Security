@@ -1,0 +1,157 @@
+Name :
+================
+DHCP Starvation Attack
+
+Why we did this
+================
+Before learning how to defend against DHCP attacks, administrators must first understand how attackers exploit DHCP.
+
+DHCP servers have a limited pool of IP addresses.
+
+An attacker can repeatedly send thousands of DHCP Discover requests using fake MAC addresses.
+
+The DHCP Server believes each request comes from a new device and starts assigning IP addresses.
+
+Eventually, the entire DHCP pool becomes exhausted.
+
+When a legitimate user connects, no IP addresses remain available.
+
+This attack is called DHCP Starvation.
+
+What will happen
+================
+1. Attacker sends thousands of DHCP Discover packets.
+2. Each request uses a different fake MAC address.
+3. DHCP Server allocates IP addresses for each request.
+4. DHCP pool runs out of available addresses.
+5. Legitimate users cannot obtain an IP address.
+6. Users lose network connectivity.
+7. Attackers may then introduce a Rogue DHCP Server.
+
+Example
+
+DHCP Pool:
+-----------
+192.168.1.1 - 192.168.1.254
+
+Attacker:
+---------
+Generates 254 fake DHCP requests
+
+Result:
+--------
+All available addresses consumed
+
+Legitimate User:
+----------------
+No IP Address Available
+
+Network Impact:
+---------------
+Connectivity Failure
+
+Advantages and Disadvantages of this, hence what came next
+==========================================================
+
+Advantages (For Learning Purposes)
+----------------------------------
+1. Helps understand DHCP weaknesses.
+2. Demonstrates how DHCP services can be attacked.
+3. Useful for security awareness and training.
+4. Shows the importance of DHCP Snooping.
+5. Helps validate security controls.
+
+Disadvantages
+-------------
+1. Exhausts DHCP address pools.
+2. Causes Denial of Service (DoS).
+3. Legitimate users cannot obtain IP addresses.
+4. May lead to major business disruptions.
+5. Can be used as a precursor to Rogue DHCP attacks.
+6. Impacts network availability.
+
+Hence what came next
+--------------------
+After identifying DHCP Starvation attacks, administrators needed a defense mechanism.
+
+Cisco introduced:
+
+DHCP Snooping Rate Limiting
+
+which limits the number of DHCP requests allowed from a port.
+
+If excessive DHCP requests are detected:
+- Packets are dropped
+- Violations are triggered
+- DHCP pool remains protected
+
+This mitigation is commonly referred to as:
+
+DHCP Starvation Mitigation
+
+One-Shot Lab Configuration
+==========================
+
+Vulnerable Network Setup
+
+Switch(config)# interface fa0/1
+Switch(config-if)# switchport mode access
+
+DHCP Server
+-----------
+Configured normally with a limited DHCP pool.
+
+Attacker Machine
+----------------
+Connected to Fa0/1 and generates thousands of DHCP requests using random MAC addresses.
+
+Verification
+============
+
+show ip dhcp binding
+
+show ip dhcp snooping binding
+
+show ip dhcp snooping statistics
+
+
+Expected Result
+===============
+
+Before Attack:
+--------------
+Free IP addresses available.
+
+During Attack:
+--------------
+DHCP pool rapidly consumed.
+
+After Attack:
+-------------
+No IP addresses available.
+
+Legitimate Users:
+-----------------
+Unable to obtain DHCP lease.
+
+Network State:
+--------------
+Denial of Service condition.
+
+Summary
+=======
+
+Problem:
+DHCP servers have a limited number of available IP addresses.
+
+Attack:
+An attacker sends thousands of DHCP requests using fake MAC addresses until all addresses are consumed.
+
+Impact:
+Legitimate users cannot obtain IP addresses and lose connectivity.
+
+Limitation:
+The network remains vulnerable until protection mechanisms are implemented.
+
+Next Practical:
+DHCP Starvation Mitigation
