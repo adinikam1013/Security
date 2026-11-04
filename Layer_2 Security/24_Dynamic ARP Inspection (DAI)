@@ -1,0 +1,208 @@
+Name :
+================
+Dynamic ARP Inspection (DAI)
+
+Why we did this
+================
+After securing DHCP using DHCP Snooping, attackers discovered another Layer 2 weakness called ARP Spoofing.
+
+ARP (Address Resolution Protocol) does not verify whether an ARP Reply is legitimate.
+
+An attacker can send fake ARP messages such as:
+
+"I am the Default Gateway"
+
+or
+
+"I own the IP Address 192.168.1.1"
+
+As a result:
+- Users send traffic to the attacker.
+- Man-in-the-Middle (MITM) attacks become possible.
+- Sensitive data can be captured.
+- Network communications can be manipulated.
+
+To prevent this, Cisco introduced Dynamic ARP Inspection (DAI).
+
+DAI validates every ARP packet before forwarding it.
+
+What will happen
+================
+1. Switch receives an ARP packet.
+2. DAI checks the ARP packet against the DHCP Snooping Binding Table.
+3. The IP-MAC mapping is verified.
+4. If the ARP packet is valid:
+   - Packet is forwarded.
+5. If the ARP packet is invalid:
+   - Packet is dropped.
+   - Log entry is generated.
+6. ARP Spoofing attacks are blocked.
+
+Example
+
+Without DAI
+-----------
+
+Gateway = 192.168.1.1
+
+Attacker sends:
+
+192.168.1.1 = AA:AA:AA:AA:AA:AA
+
+Users update their ARP table.
+
+Result:
+--------
+Traffic redirected to attacker.
+
+
+With DAI
+--------
+
+Attacker sends fake ARP packet.
+
+DAI checks DHCP Snooping Database.
+
+Database Entry:
+
+192.168.1.1 = 00:11:22:33:44:55
+
+Received ARP:
+
+192.168.1.1 = AA:AA:AA:AA:AA:AA
+
+Mismatch Detected
+
+Result:
+--------
+ARP Packet Dropped
+
+Attack Prevented
+
+Advantages and Disadvantages of this, hence what came next
+==========================================================
+
+Advantages
+----------
+1. Prevents ARP Spoofing attacks.
+2. Prevents Man-in-the-Middle attacks.
+3. Validates IP-to-MAC bindings.
+4. Uses DHCP Snooping database.
+5. Improves Layer 2 security.
+6. Protects default gateway information.
+7. Provides logging and visibility.
+
+Disadvantages
+-------------
+1. Requires DHCP Snooping.
+2. Static IP devices require additional configuration.
+3. Extra switch processing is required.
+4. Incorrect configuration can drop valid ARP packets.
+5. More complex than basic Layer 2 security features.
+
+Hence what came next
+--------------------
+Even after validating ARP packets, attackers could still manually configure:
+
+- Someone else's IP Address
+- Someone else's MAC Address
+
+and attempt to communicate on the network.
+
+Administrators wanted a feature that checks whether a device is actually using the IP address assigned to it.
+
+This led to:
+
+IP Source Guard
+
+which uses the DHCP Snooping Binding Table to verify source IP addresses before traffic is forwarded.
+
+One-Shot Configuration
+======================
+
+Prerequisite:
+DHCP Snooping Must Be Enabled
+
+Switch(config)# ip dhcp snooping
+
+Switch(config)# ip dhcp snooping vlan 10,20,30
+
+
+Enable Dynamic ARP Inspection
+
+Switch(config)# ip arp inspection vlan 10,20,30
+
+
+Configure Trusted Uplink Port
+
+Switch(config)# interface g0/1
+Switch(config-if)# ip arp inspection trust
+
+
+User Ports Remain Untrusted
+(Default)
+
+Switch(config)# interface range fa0/1-24
+Switch(config-if-range)# no ip arp inspection trust
+
+
+(Optional) Configure ARP Rate Limit
+
+Switch(config)# interface fa0/1
+Switch(config-if)# ip arp inspection limit rate 20
+
+Verification
+============
+
+show ip arp inspection
+
+show ip arp inspection interfaces
+
+show ip arp inspection statistics
+
+show ip dhcp snooping binding
+
+Expected Result
+===============
+
+Valid ARP Packets:
+------------------
+Forwarded
+
+Invalid ARP Packets:
+--------------------
+Dropped
+
+ARP Spoofing Attack:
+--------------------
+Blocked
+
+MITM Attacks:
+-------------
+Prevented
+
+Gateway Integrity:
+------------------
+Protected
+
+Security:
+---------
+Enhanced Layer 2 Protection
+
+Summary
+=======
+
+Problem:
+Attackers could send fake ARP messages and impersonate gateways or other hosts.
+
+Solution:
+Dynamic ARP Inspection validates ARP packets against the DHCP Snooping Binding Table.
+
+Benefit:
+Prevents ARP Spoofing and Man-in-the-Middle attacks.
+
+Limitation:
+Attackers may still manually configure unauthorized IP addresses.
+
+Next Practical:
+IP Source Guard
