@@ -1,0 +1,189 @@
+Name :
+================
+DHCP Starvation Mitigation
+
+Why we did this
+================
+A DHCP Starvation Attack floods the DHCP Server with thousands of DHCP requests using fake MAC addresses.
+
+As a result:
+- DHCP pool becomes exhausted.
+- Legitimate users cannot obtain IP addresses.
+- Network connectivity is lost.
+- Attackers may introduce a Rogue DHCP Server.
+
+To protect the network from DHCP pool exhaustion, Cisco introduced DHCP Starvation Mitigation using DHCP Snooping Rate Limiting.
+This limits the number of DHCP requests a device can send.
+
+What will happen
+================
+1. User ports are configured as Untrusted.
+2. DHCP rate limits are applied.
+3. Switch monitors DHCP packets.
+4. If DHCP requests exceed the configured threshold:
+   - Excess packets are dropped.
+   - Security violation occurs.
+   - Port may become Err-Disabled.
+5. DHCP Server remains protected.
+6. Legitimate users continue to receive IP addresses.
+
+Example
+
+Without Protection
+------------------
+
+Attacker
+   |
+Thousands of DHCP Requests
+   |
+Switch
+   |
+DHCP Server
+
+Result:
+--------
+DHCP Pool Exhausted
+
+
+With Protection
+---------------
+
+Attacker
+   |
+Thousands of DHCP Requests
+   |
+Switch
+
+Rate Limit:
+15 packets/sec
+
+Result:
+--------
+Excess Packets Dropped
+
+DHCP Server Protected
+
+Advantages and Disadvantages of this, hence what came next
+==========================================================
+
+Advantages
+----------
+1. Protects DHCP address pools.
+2. Prevents DHCP Denial of Service attacks.
+3. Blocks excessive DHCP requests.
+4. Maintains availability for legitimate users.
+5. Easy to implement.
+6. Works with DHCP Snooping.
+7. Improves network stability.
+
+Disadvantages
+-------------
+1. Incorrect rate limits may affect genuine users.
+2. Different networks require different thresholds.
+3. Additional monitoring may be required.
+4. Only protects DHCP-related attacks.
+5. Does not validate ARP traffic.
+
+Hence what came next
+--------------------
+After protecting DHCP services, attackers shifted their focus to ARP.
+
+An attacker could send fake ARP messages claiming:
+
+"I am the Default Gateway"
+
+Traffic would then flow through the attacker's system.
+
+This attack is called:
+
+ARP Spoofing
+
+To stop this attack, Cisco introduced:
+
+Dynamic ARP Inspection (DAI)
+
+which validates ARP packets using the DHCP Snooping Binding Table.
+
+One-Shot Configuration
+======================
+
+Enable DHCP Snooping
+
+Switch(config)# ip dhcp snooping
+
+Switch(config)# ip dhcp snooping vlan 10,20,30
+
+
+Configure Trusted Port
+(DHCP Server/Uplink Port)
+
+Switch(config)# interface g0/1
+Switch(config-if)# ip dhcp snooping trust
+
+
+Configure DHCP Rate Limiting on User Ports
+
+Switch(config)# interface range fa0/1-24
+Switch(config-if-range)# ip dhcp snooping limit rate 15
+
+
+(Optional) Enable Auto Recovery
+
+Switch(config)# errdisable recovery cause dhcp-rate-limit
+Switch(config)# errdisable recovery interval 300
+
+Verification
+============
+
+show ip dhcp snooping
+
+show ip dhcp snooping statistics
+
+show ip dhcp snooping binding
+
+show errdisable recovery
+
+Expected Result
+===============
+
+Normal DHCP Requests:
+---------------------
+Allowed
+
+Excess DHCP Requests:
+---------------------
+Dropped
+
+DHCP Starvation Attack:
+-----------------------
+Blocked
+
+DHCP Pool:
+----------
+Protected
+
+Legitimate Users:
+-----------------
+Receive IP Addresses Successfully
+
+Port Status:
+------------
+May enter Err-Disabled if threshold exceeded
+
+Summary
+=======
+
+Problem:
+Attackers could exhaust the DHCP pool by sending thousands of fake DHCP requests.
+
+Solution:
+Implement DHCP Snooping Rate Limiting to restrict DHCP requests per second.
+
+Benefit:
+Keeps DHCP services available for legitimate users and prevents DHCP Starvation attacks.
+
+Limitation:
+Does not protect against ARP Spoofing attacks.
+
+Next Practical:
+Dynamic ARP Inspection (DAI)
