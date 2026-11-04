@@ -1,0 +1,171 @@
+Name :
+================
+ARP Spoofing Attack
+
+Why we did this
+================
+Before implementing security controls such as Dynamic ARP Inspection (DAI), administrators needed to understand how ARP Spoofing works.
+
+ARP (Address Resolution Protocol) is used to map an IP Address to a MAC Address.
+
+The problem is that ARP does not have any authentication mechanism.
+
+Any device can send ARP Replies, even if nobody requested them.
+
+An attacker can exploit this weakness by sending fake ARP messages and pretending to be:
+
+- Default Gateway
+- DNS Server
+- Another User
+
+As a result, network traffic is redirected through the attacker's machine.
+
+This attack is known as ARP Spoofing or ARP Poisoning.
+
+What will happen
+================
+1. Attacker connects to the network.
+2. Attacker sends fake ARP Replies.
+3. Victim updates its ARP table.
+4. Victim now associates the Gateway IP with the Attacker MAC Address.
+5. Traffic starts flowing through the attacker.
+6. Attacker can:
+   - Monitor traffic
+   - Modify traffic
+   - Drop traffic
+   - Perform Man-in-the-Middle attacks
+
+Example
+
+Normal Operation
+----------------
+
+PC -------- Gateway
+
+ARP Table:
+
+192.168.1.1 = 00:11:22:33:44:55
+
+Traffic Flows Normally
+
+
+During Attack
+-------------
+
+Attacker sends:
+
+192.168.1.1 = AA:AA:AA:AA:AA:AA
+
+Victim updates ARP Table
+
+ARP Table:
+
+192.168.1.1 = AA:AA:AA:AA:AA:AA
+
+Result:
+--------
+Traffic forwarded to attacker instead of gateway.
+
+Advantages and Disadvantages of this, hence what came next
+==========================================================
+
+Advantages (For Learning Purposes)
+----------------------------------
+1. Demonstrates weaknesses in ARP.
+2. Helps understand Layer 2 attacks.
+3. Useful for penetration testing labs.
+4. Shows why ARP validation is necessary.
+5. Helps validate security controls.
+
+Disadvantages
+-------------
+1. Enables Man-in-the-Middle attacks.
+2. Allows packet sniffing.
+3. Can steal usernames and passwords.
+4. Can modify network traffic.
+5. Can cause denial of service.
+6. Disrupts normal communications.
+7. High risk in unsecured Layer 2 environments.
+
+Hence what came next
+--------------------
+Cisco needed a mechanism to verify ARP packets before forwarding them.
+
+The solution was:
+
+Dynamic ARP Inspection (DAI)
+
+DAI compares ARP packets against the DHCP Snooping Binding Table.
+
+If the IP-MAC mapping is invalid:
+- ARP packet is dropped.
+- Log is generated.
+- Attack is blocked.
+
+One-Shot Lab Configuration
+==========================
+
+Victim PC:
+----------
+IP Address : 192.168.1.10
+
+Gateway:
+--------
+IP Address : 192.168.1.1
+
+Attacker:
+---------
+Connected to same VLAN
+
+Enable packet capture on attacker and send fake ARP replies claiming:
+
+192.168.1.1 = AA:AA:AA:AA:AA:AA
+
+Verification
+============
+
+On Victim PC
+
+arp -a
+
+Expected Result
+===============
+
+Before Attack
+
+192.168.1.1 = 00:11:22:33:44:55
+
+
+After Attack
+
+192.168.1.1 = AA:AA:AA:AA:AA:AA
+
+Traffic Path
+------------
+Victim --> Attacker --> Gateway
+
+Attack Type
+-----------
+Man-in-the-Middle (MITM)
+
+Impact
+------
+Traffic Interception Possible
+
+Summary
+=======
+
+Problem:
+ARP does not authenticate ARP messages.
+
+Attack:
+Attacker sends fake ARP replies and associates its MAC address with a legitimate IP address.
+
+Impact:
+Traffic is redirected through the attacker, enabling packet capture, manipulation, and MITM attacks.
+
+Limitation:
+This attack remains possible until ARP validation is implemented.
+
+Next Practical:
+ARP Spoofing Prevention
