@@ -1,0 +1,212 @@
+Name :
+================
+ARP Spoofing Prevention
+
+Why we did this
+================
+ARP Spoofing allows an attacker to send fake ARP replies and impersonate:
+
+- Default Gateway
+- DNS Server
+- Other Users
+
+As a result:
+
+- Traffic gets redirected to the attacker.
+- Man-in-the-Middle (MITM) attacks become possible.
+- Sensitive information can be captured.
+- Network communication can be disrupted.
+
+We needed a mechanism to verify whether ARP packets are legitimate before forwarding them.
+
+To solve this problem, Cisco introduced Dynamic ARP Inspection (DAI).
+
+DAI validates ARP packets using the DHCP Snooping Binding Database.
+
+What will happen
+================
+1. A device sends an ARP packet.
+2. Switch intercepts the ARP packet.
+3. DAI checks:
+   - IP Address
+   - MAC Address
+   - VLAN
+   - Interface
+
+4. Information is compared against the DHCP Snooping Binding Table.
+
+5. If the information matches:
+   - Packet is forwarded.
+
+6. If the information does not match:
+   - Packet is dropped.
+   - Log entry is generated.
+   - Attack is prevented.
+
+Example
+
+Without Protection
+------------------
+
+Attacker sends:
+
+192.168.1.1 = AA:AA:AA:AA:AA:AA
+
+Victim updates ARP Cache
+
+Result:
+--------
+Traffic redirected to attacker.
+
+
+With DAI
+--------
+
+Attacker sends:
+
+192.168.1.1 = AA:AA:AA:AA:AA:AA
+
+DAI checks Binding Table:
+
+192.168.1.1 = 00:11:22:33:44:55
+
+Result:
+--------
+Packet Dropped
+
+Traffic continues through legitimate gateway.
+
+Advantages and Disadvantages of this, hence what came next
+==========================================================
+
+Advantages
+----------
+1. Prevents ARP Spoofing.
+2. Prevents Man-in-the-Middle attacks.
+3. Protects gateway identity.
+4. Uses DHCP Snooping database for validation.
+5. Improves Layer 2 security.
+6. Provides logging and visibility.
+7. Protects users automatically.
+
+Disadvantages
+-------------
+1. Requires DHCP Snooping.
+2. Static IP devices require ARP ACLs.
+3. Additional CPU processing on switch.
+4. Incorrect configuration may drop valid ARP packets.
+5. More complex than basic Layer 2 security.
+
+Hence what came next
+--------------------
+Even after ARP packets are verified, attackers may still manually configure an IP address belonging to another device.
+
+Example:
+
+Legitimate User:
+192.168.1.100
+
+Attacker:
+Manually configures 192.168.1.100
+
+ARP may be valid, but the attacker is still using an unauthorized IP.
+
+To solve this problem Cisco introduced:
+
+IP Source Guard
+
+which verifies that a device uses only the IP address assigned to it.
+
+One-Shot Configuration
+======================
+
+Step 1 - Enable DHCP Snooping
+
+Switch(config)# ip dhcp snooping
+
+Switch(config)# ip dhcp snooping vlan 10
+
+
+Step 2 - Trust DHCP Server Port
+
+Switch(config)# interface g0/1
+Switch(config-if)# ip dhcp snooping trust
+
+
+Step 3 - Enable Dynamic ARP Inspection
+
+Switch(config)# ip arp inspection vlan 10
+
+
+Step 4 - Trust Uplink Port
+
+Switch(config)# interface g0/1
+Switch(config-if)# ip arp inspection trust
+
+
+Step 5 - Configure User Ports
+
+Switch(config)# interface range fa0/1-24
+Switch(config-if-range)# no ip arp inspection trust
+
+
+(Optional) ARP Rate Limiting
+
+Switch(config)# interface fa0/1
+Switch(config-if)# ip arp inspection limit rate 20
+
+Verification
+============
+
+show ip arp inspection
+
+show ip arp inspection interfaces
+
+show ip arp inspection statistics
+
+show ip dhcp snooping binding
+
+Expected Result
+===============
+
+Valid ARP Packets:
+------------------
+Forwarded
+
+Fake ARP Packets:
+-----------------
+Dropped
+
+ARP Spoofing Attack:
+--------------------
+Blocked
+
+Gateway Protection:
+-------------------
+Enabled
+
+MITM Attack:
+------------
+Prevented
+
+Security:
+---------
+Enhanced Layer 2 Protection
+
+Summary
+=======
+
+Problem:
+Attackers could send fake ARP replies and redirect traffic through their systems.
+
+Solution:
+Dynamic ARP Inspection validates ARP packets using the DHCP Snooping Binding Table.
+
+Benefit:
+Prevents ARP Spoofing and Man-in-the-Middle attacks.
+
+Limitation:
+Attackers may still use unauthorized IP addresses.
+
+Next Practical:
+IP Source Guard
