@@ -1,0 +1,174 @@
+Name :
+================
+Device Tracking
+
+Why we did this
+================
+DHCP Snooping verifies DHCP assignments.
+
+Dynamic ARP Inspection verifies ARP packets.
+
+IP Source Guard verifies source IP addresses.
+
+However, administrators still need visibility into:
+
+- Which device is connected?
+- Which IP address is being used?
+- Which MAC address belongs to which device?
+- Which switch port is the device connected to?
+
+Without this information, troubleshooting and security investigations become difficult.
+
+To solve this problem, Cisco introduced Device Tracking.
+
+Device Tracking creates and maintains a database of:
+
+- IP Address
+- MAC Address
+- VLAN
+- Interface
+
+for devices connected to the switch.
+
+What will happen
+================
+1. A device connects to the switch.
+2. The switch learns:
+   - IP Address
+   - MAC Address
+   - VLAN
+   - Interface
+3. The information is stored in the Device Tracking Database.
+4. Security features can use this information.
+5. Administrators gain endpoint visibility.
+
+Example
+
+PC1
+MAC : 0011.2233.4455
+IP  : 192.168.1.10
+
+Connected to:
+
+Fa0/1
+
+Device Tracking Database:
+
+IP Address      : 192.168.1.10
+MAC Address     : 0011.2233.4455
+VLAN            : 10
+Interface       : Fa0/1
+
+Result:
+--------
+Administrator can easily identify the connected device.
+
+Advantages and Disadvantages of this, hence what came next
+==========================================================
+
+Advantages
+----------
+1. Provides endpoint visibility.
+2. Tracks IP-MAC-Port relationships.
+3. Helps troubleshooting.
+4. Assists security investigations.
+5. Works with IP Source Guard.
+6. Works with Cisco security features.
+7. Improves network monitoring.
+
+Disadvantages
+-------------
+1. Requires switch resources.
+2. Database maintenance overhead.
+3. Can increase management complexity.
+4. Depends on proper network configuration.
+5. Does not authenticate devices by itself.
+
+Hence what came next
+--------------------
+Even after tracking devices, attackers could still change their MAC address and pretend to be another system.
+
+This attack is called:
+
+MAC Spoofing
+
+An attacker modifies their network card MAC address to impersonate a legitimate device.
+
+This led to:
+
+MAC Spoofing Detection
+
+which helps identify and prevent unauthorized MAC address impersonation.
+
+One-Shot Configuration
+======================
+
+Enable Device Tracking Globally
+
+Switch(config)# ip device tracking
+
+
+Enable Device Tracking on Interface
+
+Switch(config)# interface fa0/1
+Switch(config-if)# ip device tracking maximum 5
+
+
+(Optional)
+
+Switch(config)# interface range fa0/1-24
+Switch(config-if-range)# ip device tracking maximum 5
+
+Verification
+============
+
+show ip device tracking all
+
+show ip device tracking
+
+show ip device tracking interface fa0/1
+
+Expected Result
+===============
+
+Connected Devices:
+------------------
+Tracked
+
+IP Address:
+------------
+Learned
+
+MAC Address:
+-------------
+Learned
+
+Switch Port:
+-------------
+Identified
+
+VLAN:
+------
+Identified
+
+Security Visibility:
+--------------------
+Improved
+
+Summary
+=======
+
+Problem:
+Administrators needed visibility into which devices were connected to the network.
+
+Solution:
+Device Tracking maintains an IP-MAC-VLAN-Port database.
+
+Benefit:
+Improves troubleshooting, endpoint visibility, and security monitoring.
+
+Limitation:
+Does not prevent MAC address impersonation.
+
+Next Practical:
+MAC Spoofing Detection
