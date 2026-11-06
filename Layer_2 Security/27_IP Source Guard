@@ -1,0 +1,169 @@
+Name :
+================
+IP Source Guard
+
+Why we did this
+================
+DHCP Snooping protects against Rogue DHCP Servers.
+Dynamic ARP Inspection (DAI) protects against ARP Spoofing.
+However, an attacker can still manually configure a valid IP address on their device.
+
+Example:
+Authorized User:
+192.168.1.100
+
+Attacker:
+Manually configures 192.168.1.100
+
+Even though DHCP Snooping and DAI are enabled, the attacker may still attempt to communicate using an unauthorized IP address.
+
+Administrators needed a way to ensure a device uses only the IP address assigned to it.
+
+To solve this problem, Cisco introduced IP Source Guard.
+
+IP Source Guard uses the DHCP Snooping Binding Table to verify source IP addresses before allowing traffic.
+
+What will happen
+================
+1. Device receives an IP address through DHCP.
+2. DHCP Snooping creates an IP-MAC-Port binding.
+3. IP Source Guard checks every packet arriving on the port.
+4. Source IP is compared with the DHCP Binding Table.
+5. If the IP matches:
+   - Traffic is allowed.
+6. If the IP does not match:
+   - Traffic is dropped.
+7. Unauthorized IP usage is prevented.
+
+Example
+
+DHCP Binding Table
+------------------
+
+192.168.1.100
+MAC: 0011.2233.4455
+Port: Fa0/1
+
+If PC on Fa0/1 sends traffic using:
+
+192.168.1.100
+Result:
+--------
+Allowed
+
+If PC on Fa0/1 sends traffic using:
+
+192.168.1.200
+Result:
+--------
+Dropped
+
+Advantages and Disadvantages of this, hence what came next
+==========================================================
+
+Advantages
+----------
+1. Prevents IP address spoofing.
+2. Works with DHCP Snooping.
+3. Blocks unauthorized IP address usage.
+4. Provides per-port validation.
+5. Improves Layer 2 security.
+6. Reduces impersonation attacks.
+7. Complements DAI and DHCP Snooping.
+
+Disadvantages
+-------------
+1. Requires DHCP Snooping.
+2. Static IP devices require manual bindings.
+3. Additional switch processing.
+4. Incorrect bindings can block valid traffic.
+5. More operational complexity.
+
+Hence what came next
+--------------------
+Even after securing DHCP, ARP, and IP addresses, attackers could still connect unauthorized devices to switch ports.
+
+Administrators wanted to track which device was connected to which switch port.
+
+This led to:
+
+Device Tracking
+
+which maintains an IP-to-MAC-to-Port database and improves endpoint visibility.
+
+One-Shot Configuration
+======================
+
+Step 1 - Enable DHCP Snooping
+
+Switch(config)# ip dhcp snooping
+
+Switch(config)# ip dhcp snooping vlan 10
+
+
+Step 2 - Configure Trusted DHCP Port
+
+Switch(config)# interface g0/1
+Switch(config-if)# ip dhcp snooping trust
+
+
+Step 3 - Enable IP Source Guard
+
+Switch(config)# interface fa0/1
+Switch(config-if)# ip verify source
+
+
+(Optional - Verify Source Using MAC + IP)
+
+Switch(config)# interface fa0/1
+Switch(config-if)# ip verify source port-security
+
+Verification
+============
+
+show ip verify source
+
+show ip verify source interface fa0/1
+
+show ip dhcp snooping binding
+
+Expected Result
+===============
+
+Valid Source IP:
+----------------
+Allowed
+
+Spoofed Source IP:
+------------------
+Dropped
+
+Unauthorized IP Usage:
+-----------------------
+Blocked
+
+DHCP Binding Table:
+-------------------
+Used for Validation
+
+Security:
+---------
+Enhanced Protection Against IP Spoofing
+
+Summary
+=======
+
+Problem:
+Attackers could manually configure unauthorized IP addresses and impersonate legitimate devices.
+
+Solution:
+IP Source Guard verifies source IP addresses against the DHCP Snooping Binding Table.
+
+Benefit:
+Prevents IP Spoofing and unauthorized IP address usage.
+
+Limitation:
+Does not identify the physical device itself.
+
+Next Practical:
+Device Tracking
