@@ -1,0 +1,181 @@
+Name :
+================
+MAC Spoofing Detection
+
+Why we did this
+================
+Many Layer 2 security mechanisms rely on MAC addresses.
+
+Examples:
+
+- Port Security
+- Sticky MAC
+- DHCP Snooping
+- Device Tracking
+
+However, attackers can easily change their device MAC address and impersonate a legitimate device.
+
+This attack is called MAC Spoofing.
+
+Example:
+
+Authorized PC
+MAC: 0011.2233.4455
+
+Attacker changes MAC address to:
+
+0011.2233.4455
+
+The network may believe the attacker is the authorized device.
+
+To detect such situations, administrators use MAC Spoofing Detection techniques.
+
+What will happen
+================
+1. Switch learns MAC addresses.
+2. Device Tracking maintains IP-MAC-Port mappings.
+3. Port Security monitors authorized MAC addresses.
+4. If the same MAC appears on a different port:
+   - Security violation occurs.
+   - Log entry is generated.
+   - Administrator is alerted.
+5. Unauthorized MAC impersonation attempts can be identified.
+
+Example
+
+Original Device
+
+MAC:
+0011.2233.4455
+
+Connected on:
+Fa0/1
+
+
+Attacker
+
+Changes MAC to:
+0011.2233.4455
+
+Connected on:
+Fa0/2
+
+Result:
+--------
+Same MAC detected on multiple ports.
+
+Potential MAC Spoofing activity identified.
+
+Advantages and Disadvantages of this, hence what came next
+==========================================================
+
+Advantages
+----------
+1. Detects duplicate MAC addresses.
+2. Helps identify impersonation attempts.
+3. Improves endpoint visibility.
+4. Supports incident investigations.
+5. Works with Port Security.
+6. Improves Layer 2 monitoring.
+7. Helps enforce access policies.
+
+Disadvantages
+-------------
+1. MAC addresses can still be changed.
+2. Detection depends on monitoring.
+3. False positives may occur during legitimate device moves.
+4. Does not authenticate users.
+5. Requires additional security controls.
+
+Hence what came next
+--------------------
+Even after detecting MAC Spoofing, attackers could attempt to overwhelm the switch by generating thousands of fake MAC addresses.
+
+This attack fills the CAM table and forces the switch to flood traffic.
+
+This is known as:
+
+MAC Flooding Attack
+
+and can lead to traffic interception and performance issues.
+
+This led to:
+
+MAC Flooding Attack
+
+which demonstrates how switch CAM tables can be exploited.
+
+One-Shot Configuration
+======================
+
+Enable Port Security
+
+Switch(config)# interface fa0/1
+Switch(config-if)# switchport mode access
+Switch(config-if)# switchport port-security
+Switch(config-if)# switchport port-security maximum 1
+Switch(config-if)# switchport port-security mac-address sticky
+Switch(config-if)# switchport port-security violation restrict
+
+
+Enable Device Tracking
+
+Switch(config)# ip device tracking
+
+
+(Optional)
+
+Switch(config)# interface fa0/1
+Switch(config-if)# ip device tracking maximum 5
+
+Verification
+============
+
+show mac address-table
+
+show port-security
+
+show port-security address
+
+show ip device tracking
+
+Expected Result
+===============
+
+Authorized MAC:
+---------------
+Allowed
+
+Duplicate MAC:
+--------------
+Detected
+
+Security Violation:
+-------------------
+Generated
+
+Logs:
+-----
+Generated
+
+Monitoring:
+-----------
+Improved
+
+Summary
+=======
+
+Problem:
+Attackers can change their MAC address and impersonate legitimate devices.
+
+Solution:
+Use Port Security and Device Tracking to detect duplicate or suspicious MAC address activity.
+
+Benefit:
+Improves visibility and helps identify MAC impersonation attempts.
+
+Limitation:
+Attackers may still attempt CAM table attacks.
+
+Next Practical:
+MAC Flooding Attack
