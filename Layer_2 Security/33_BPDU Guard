@@ -1,0 +1,169 @@
+Name :
+================
+BPDU Guard
+
+Why we did this
+================
+STP prevents Layer 2 loops by exchanging BPDU (Bridge Protocol Data Unit) messages between switches.
+
+However, end-user ports should never receive BPDUs because PCs, printers, IP phones, and servers are not supposed to participate in STP.
+
+An attacker can connect a rogue switch to an access port and begin sending BPDUs.
+
+This could:
+
+- Influence STP topology
+- Become the Root Bridge
+- Redirect traffic
+- Cause network instability
+- Create outages
+
+Administrators needed a method to immediately disable any access port that receives a BPDU.
+
+To solve this problem, Cisco introduced BPDU Guard.
+
+What will happen
+================
+1. BPDU Guard is enabled on access ports.
+2. The port operates normally.
+3. If a BPDU is received:
+   - STP detects it.
+   - BPDU Guard considers this a violation.
+   - Port immediately enters Err-Disabled state.
+4. Device loses connectivity.
+5. Network remains protected.
+
+Example
+
+Normal Scenario
+---------------
+
+PC -------- Fa0/1
+
+No BPDUs Received
+
+Result:
+--------
+Port Remains Active
+
+
+Attack Scenario
+---------------
+
+Rogue Switch -------- Fa0/1
+
+BPDU Sent
+
+Result:
+--------
+BPDU Guard Activated
+
+Port Err-Disabled
+
+Attack Prevented
+
+Advantages and Disadvantages of this, hence what came next
+==========================================================
+
+Advantages
+----------
+1. Prevents rogue switches from affecting STP.
+2. Protects Root Bridge election.
+3. Simple to deploy.
+4. Immediately stops BPDU-based attacks.
+5. Recommended on all access ports.
+6. Improves Layer 2 security.
+7. Prevents accidental switch connections.
+
+Disadvantages
+-------------
+1. Port becomes Err-Disabled after violation.
+2. Legitimate switch connections may trigger shutdown.
+3. Requires recovery or manual intervention.
+4. Should not be enabled on switch-to-switch trunk links.
+5. Can cause temporary user disruption.
+
+Hence what came next
+--------------------
+BPDU Guard protects end-user ports.
+
+However, attackers may connect a switch to a valid switch link and try to become the Root Bridge.
+
+Administrators wanted to protect the STP Root Bridge itself.
+
+This led to:
+
+Root Guard
+
+which prevents another switch from taking over the Root Bridge role.
+
+One-Shot Configuration
+======================
+
+Enable PortFast
+
+Switch(config)# interface range fa0/1-24
+Switch(config-if-range)# spanning-tree portfast
+
+
+Enable BPDU Guard
+
+Switch(config)# interface range fa0/1-24
+Switch(config-if-range)# spanning-tree bpduguard enable
+
+OR
+
+Enable Globally
+
+Switch(config)# spanning-tree portfast default
+Switch(config)# spanning-tree portfast bpduguard default
+
+Verification
+============
+
+show spanning-tree summary
+
+show spanning-tree interface fa0/1 detail
+
+show errdisable recovery
+
+Expected Result
+===============
+
+Normal End Device:
+------------------
+Port Remains Active
+
+BPDU Received:
+--------------
+Port Disabled
+
+Port State:
+-----------
+Err-Disabled
+
+Network Stability:
+------------------
+Protected
+
+Rogue Switch:
+-------------
+Blocked
+
+Summary
+=======
+
+Problem:
+Attackers or unauthorized switches could send BPDUs and manipulate the STP topology.
+
+Solution:
+BPDU Guard immediately disables a port if a BPDU is received on an access port.
+
+Benefit:
+Protects STP and prevents rogue switch attacks.
+
+Limitation:
+Does not protect the Root Bridge from takeover on legitimate switch links.
+
+Next Practical:
+Root Guard
