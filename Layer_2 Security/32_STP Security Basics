@@ -1,0 +1,166 @@
+Name :
+================
+STP Security Basics
+
+Why we did this
+================
+As networks grew, multiple switches were connected together to provide redundancy.
+
+Redundancy is good because if one link fails, traffic can use another path.
+
+However, redundant links create Layer 2 loops.
+
+A Layer 2 loop can cause:
+
+- Broadcast Storms
+- MAC Address Table Instability
+- Multiple Frame Copies
+- Network Congestion
+- Complete Network Outage
+
+To solve this problem, Cisco uses Spanning Tree Protocol (STP).
+
+STP prevents loops by logically blocking redundant paths while keeping them available as backup links.
+
+What will happen
+================
+1. Switches exchange BPDU (Bridge Protocol Data Unit) messages.
+2. One switch is elected as the Root Bridge.
+3. The best path toward the Root Bridge is calculated.
+4. Redundant paths are placed into a Blocking State.
+5. Only one active path remains.
+6. If the active path fails, STP activates the backup path.
+
+Example
+
+Without STP
+-----------
+
+Switch A -------- Switch B
+    |                |
+    |                |
+Switch C ------------
+
+Result:
+--------
+Layer 2 Loop Formed
+
+Broadcast frames circulate forever.
+
+
+With STP
+--------
+
+Switch A -------- Switch B
+    |                |
+    |                |
+Switch C ------------
+
+One redundant link is blocked.
+
+Result:
+--------
+No Loop
+
+Network remains stable.
+
+Advantages and Disadvantages of this, hence what came next
+==========================================================
+
+Advantages
+----------
+1. Prevents Layer 2 loops.
+2. Prevents Broadcast Storms.
+3. Maintains network stability.
+4. Supports redundant links.
+5. Automatically recalculates paths during failures.
+6. Essential for switched networks.
+7. Foundation for Layer 2 resilience.
+
+Disadvantages
+-------------
+1. Convergence can take time (Traditional STP).
+2. Uses only one path while blocking others.
+3. Can be manipulated by attackers.
+4. Rogue switches can influence Root Bridge election.
+5. Misconfigured switches may affect the entire network.
+
+Hence what came next
+--------------------
+Attackers discovered that they could send fake BPDUs and attempt to become the Root Bridge.
+
+If successful:
+
+- Traffic paths change
+- Network becomes unstable
+- Traffic can be intercepted
+
+Administrators needed a way to protect access ports from receiving BPDUs.
+
+This led to:
+
+BPDU Guard
+
+which immediately disables a port that receives unexpected BPDUs.
+
+One-Shot Configuration
+======================
+
+Enable Rapid PVST (Recommended)
+
+Switch(config)# spanning-tree mode rapid-pvst
+
+
+(Optional) Configure Root Bridge
+
+Switch(config)# spanning-tree vlan 10 root primary
+
+Verification
+============
+
+show spanning-tree
+
+show spanning-tree vlan 10
+
+show spanning-tree root
+
+Expected Result
+===============
+
+Root Bridge:
+------------
+Elected Successfully
+
+Looped Links:
+-------------
+Blocked
+
+Redundant Paths:
+----------------
+Available as Backup
+
+Broadcast Storm:
+----------------
+Prevented
+
+Network Stability:
+------------------
+Maintained
+
+Summary
+=======
+
+Problem:
+Redundant Layer 2 links create switching loops and broadcast storms.
+
+Solution:
+Spanning Tree Protocol (STP) detects loops and blocks redundant paths.
+
+Benefit:
+Provides loop-free redundancy and network stability.
+
+Limitation:
+Attackers can manipulate STP using fake BPDUs.
+
+Next Practical:
+BPDU Guard
