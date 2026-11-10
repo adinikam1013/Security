@@ -1,0 +1,182 @@
+Name :
+================
+CAM Table Overflow Mitigation
+
+Why we did this
+================
+A CAM Table Overflow Attack (MAC Flooding Attack) occurs when an attacker sends thousands of fake MAC addresses to a switch.
+
+The switch stores these fake MAC entries in its CAM Table until the table becomes full.
+
+Once the CAM Table is exhausted:
+
+- Switch cannot learn new MAC addresses.
+- Unknown traffic is flooded out multiple ports.
+- Attackers may sniff network traffic.
+- Network performance degrades.
+
+Administrators needed a way to limit how many MAC addresses a switch port can learn.
+
+To solve this problem, Cisco introduced CAM Table Overflow Mitigation using Port Security.
+
+What will happen
+================
+1. Maximum MAC addresses are configured on a port.
+2. Switch learns only the permitted number of MAC addresses.
+3. Additional MAC addresses trigger a security violation.
+4. Depending upon violation mode:
+   - Protect
+   - Restrict
+   - Shutdown
+
+5. Fake MAC flooding is stopped.
+6. CAM table remains protected.
+
+Example
+
+Without Protection
+------------------
+
+Attacker sends:
+
+AAAA.AAAA.0001
+AAAA.AAAA.0002
+AAAA.AAAA.0003
+AAAA.AAAA.9999
+
+Result:
+--------
+CAM Table fills completely.
+
+
+With Protection
+---------------
+
+Maximum MACs Allowed:
+1
+
+Attacker sends:
+
+AAAA.AAAA.0001
+AAAA.AAAA.0002
+
+Result:
+--------
+Violation Occurs
+
+Additional MACs Blocked
+
+CAM Table Protected
+
+Advantages and Disadvantages of this, hence what came next
+==========================================================
+
+Advantages
+----------
+1. Prevents CAM Table Overflow attacks.
+2. Protects against MAC Flooding.
+3. Prevents traffic sniffing attempts.
+4. Reduces attack surface.
+5. Easy to implement.
+6. Improves access-layer security.
+7. Works with Sticky MAC Security.
+
+Disadvantages
+-------------
+1. Requires MAC limit planning.
+2. Device replacement may trigger violations.
+3. Additional administration required.
+4. Large environments may require automation.
+5. Does not protect against STP-based attacks.
+
+Hence what came next
+--------------------
+After protecting the CAM Table, attackers started targeting the Spanning Tree Protocol (STP).
+
+A rogue switch could send malicious BPDUs and attempt to become:
+
+- Root Bridge
+- Transit Path
+
+This could redirect traffic and affect network stability.
+
+To protect the STP topology, Cisco introduced:
+
+BPDU Guard
+
+which immediately disables a port when unexpected BPDUs are received.
+
+One-Shot Configuration
+======================
+
+Configure Port Security
+
+Switch(config)# interface fa0/1
+Switch(config-if)# switchport mode access
+Switch(config-if)# switchport port-security
+
+Limit MAC Addresses
+
+Switch(config-if)# switchport port-security maximum 1
+
+Enable Sticky MAC
+
+Switch(config-if)# switchport port-security mac-address sticky
+
+Configure Violation Action
+
+Switch(config-if)# switchport port-security violation shutdown
+
+Verification
+============
+
+show port-security
+
+show port-security interface fa0/1
+
+show port-security address
+
+Expected Result
+===============
+
+Allowed MAC Addresses:
+----------------------
+1
+
+Additional MAC Addresses:
+-------------------------
+Blocked
+
+CAM Table Flooding:
+-------------------
+Prevented
+
+Violation:
+----------
+Generated
+
+Port Status:
+------------
+Err-disabled (if shutdown mode is configured)
+
+Security:
+---------
+CAM Table Protected
+
+Summary
+=======
+
+Problem:
+Attackers could flood the CAM Table with fake MAC addresses and force the switch to flood traffic.
+
+Solution:
+Use Port Security to limit the number of MAC addresses learned per port.
+
+Benefit:
+Protects the CAM Table, prevents MAC Flooding attacks, and improves Layer 2 security.
+
+Limitation:
+Does not protect against malicious STP devices.
+
+Next Practical:
+BPDU Guard
