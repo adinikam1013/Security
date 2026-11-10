@@ -1,0 +1,184 @@
+	Name :
+================
+MAC Flooding Attack
+
+Why we did this
+================
+A switch uses a CAM (Content Addressable Memory) Table to store:
+
+- MAC Address
+- Associated Port
+
+This allows the switch to forward frames efficiently.
+
+Attackers discovered that a switch CAM table has limited memory.
+
+By generating thousands of fake MAC addresses, an attacker can fill the CAM table until it becomes full.
+
+When the CAM table is exhausted, the switch can no longer learn new MAC addresses.
+
+The switch then starts flooding traffic out of all ports, similar to how a hub operates.
+
+This allows attackers to capture traffic that was never intended for them.
+
+This attack is known as a MAC Flooding Attack or CAM Table Overflow Attack.
+
+What will happen
+================
+1. Attacker sends thousands of frames with fake source MAC addresses.
+2. Switch continuously learns these fake MAC entries.
+3. CAM table becomes full.
+4. Switch cannot learn new MAC addresses.
+5. Unknown traffic is flooded to multiple ports.
+6. Attacker may capture traffic from other users.
+7. Network performance may degrade.
+
+Example
+
+Normal Operation
+----------------
+
+PC1 ---> Switch ---> PC2
+
+CAM Table
+
+0011.1111.1111  Fa0/1
+0022.2222.2222  Fa0/2
+
+Result:
+--------
+Traffic sent only to destination port.
+
+
+During Attack
+-------------
+
+Attacker sends:
+
+AAAA.AAAA.0001
+AAAA.AAAA.0002
+AAAA.AAAA.0003
+AAAA.AAAA.9999
+
+CAM Table becomes full.
+
+Result:
+--------
+Switch starts flooding unknown traffic.
+
+Attacker can sniff traffic from other users.
+
+Advantages and Disadvantages of this, hence what came next
+==========================================================
+
+Advantages (For Learning Purposes)
+----------------------------------
+1. Demonstrates CAM table limitations.
+2. Helps understand Layer 2 attacks.
+3. Useful for penetration testing labs.
+4. Demonstrates why Port Security is important.
+5. Validates switch security controls.
+
+Disadvantages
+-------------
+1. Can expose user traffic.
+2. Enables packet sniffing.
+3. Reduces switch performance.
+4. Causes excessive flooding.
+5. Increases security risk.
+6. May impact business applications.
+7. Can lead to information disclosure.
+
+Hence what came next
+--------------------
+Administrators needed a way to prevent switches from learning unlimited MAC addresses.
+
+Cisco introduced:
+
+CAM Table Overflow Mitigation
+
+using:
+
+- Port Security
+- Maximum MAC Limits
+- Sticky MAC
+- Violation Actions
+
+These mechanisms stop excessive MAC learning and protect the CAM table.
+
+One-Shot Lab Configuration
+==========================
+
+Vulnerable Configuration
+
+Switch(config)# interface fa0/1
+Switch(config-if)# switchport mode access
+
+(No Port Security Configured)
+
+Attacker Machine:
+-----------------
+Connected to Fa0/1
+
+Linux Example:
+
+macof -i eth0
+
+Result:
+--------
+Thousands of fake MAC addresses generated.
+
+Verification
+============
+
+show mac address-table
+
+show mac address-table count
+
+Expected Result
+===============
+
+Before Attack:
+--------------
+Normal CAM Table Entries
+
+During Attack:
+--------------
+Thousands of MAC Addresses Learned
+
+CAM Table:
+----------
+Rapidly Fills
+
+Traffic:
+---------
+Unknown Unicast Flooding Begins
+
+Attacker:
+---------
+May Capture Other Users Traffic
+
+Security Impact:
+----------------
+High
+
+Summary
+=======
+
+Problem:
+Switch CAM tables have limited memory.
+
+Attack:
+Attacker floods the switch with thousands of fake MAC addresses.
+
+Impact:
+CAM table fills up and the switch starts flooding traffic.
+
+Benefit for Attacker:
+Can observe traffic not intended for them.
+
+Limitation:
+Attack can be prevented using Port Security and MAC Limits.
+
+Next Practical:
+CAM Table Overflow Mitigation
