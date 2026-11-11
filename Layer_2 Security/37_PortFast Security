@@ -1,0 +1,200 @@
+Name :
+================
+PortFast Security
+
+Why we did this
+================
+Normally, when a switch port comes up, STP moves through several states:
+
+- Blocking
+- Listening
+- Learning
+- Forwarding
+
+This process can take 30-50 seconds.
+
+For end devices such as:
+
+- PCs
+- Printers
+- IP Phones
+- Servers
+
+this delay can cause issues such as:
+
+- DHCP Timeout
+- Slow Network Login
+- Application Delays
+
+To solve this problem, Cisco introduced PortFast.
+
+PortFast allows an access port to immediately enter the Forwarding State.
+
+However, if a switch is accidentally connected to a PortFast port, Layer 2 loops may occur.
+
+Therefore, PortFast should always be secured with BPDU Guard.
+
+This combination is commonly called PortFast Security.
+
+What will happen
+================
+1. End device connects.
+2. Port immediately enters Forwarding State.
+3. Device gets network access instantly.
+4. If a switch sends BPDUs on the port:
+   - BPDU Guard activates.
+   - Port moves to Err-Disabled State.
+5. STP topology remains protected.
+
+Example
+
+Without PortFast
+----------------
+
+PC Connected
+
+Port States:
+
+Blocking
+Listening
+Learning
+Forwarding
+
+Result:
+--------
+30-50 second delay
+
+
+With PortFast
+-------------
+
+PC Connected
+
+Forwarding
+
+Immediately
+
+Result:
+--------
+Instant Connectivity
+
+Advantages and Disadvantages of this, hence what came next
+==========================================================
+
+Advantages
+----------
+1. Immediate network access for end devices.
+2. Improves DHCP operation.
+3. Faster user login.
+4. Eliminates STP startup delay.
+5. Works well with BPDU Guard.
+6. Recommended on all access ports.
+7. Improves user experience.
+
+Disadvantages
+-------------
+1. Must not be enabled on switch-to-switch links.
+2. Incorrect deployment may create loops.
+3. Requires BPDU Guard for protection.
+4. Misconfiguration can affect network stability.
+5. Additional STP protections are still required.
+
+Hence what came next
+--------------------
+PortFast protects access ports.
+
+However, attackers may still manipulate STP topology by sending superior BPDUs.
+
+Administrators wanted to protect STP against topology attacks and rogue root bridges.
+
+This led to:
+
+STP Attack Prevention
+
+which combines:
+- BPDU Guard
+- Root Guard
+- Loop Guard
+- PortFast Security
+
+to create a hardened STP environment.
+
+One-Shot Configuration
+======================
+
+Configure Access Port
+
+Switch(config)# interface fa0/1
+Switch(config-if)# switchport mode access
+
+Enable PortFast
+
+Switch(config-if)# spanning-tree portfast
+
+Enable BPDU Guard
+
+Switch(config-if)# spanning-tree bpduguard enable
+
+
+OR
+
+
+Global Configuration
+
+Switch(config)# spanning-tree portfast default
+
+Switch(config)# spanning-tree portfast bpduguard default
+
+Verification
+============
+
+show spanning-tree interface fa0/1 detail
+
+show spanning-tree summary
+
+show running-config interface fa0/1
+
+Expected Result
+===============
+
+End Device Connection:
+----------------------
+Immediate
+
+Port State:
+-----------
+Forwarding
+
+DHCP:
+-----
+Fast Address Assignment
+
+If BPDU Received:
+-----------------
+Port Err-Disabled
+
+Layer 2 Loops:
+--------------
+Prevented
+
+Security:
+---------
+Enhanced
+
+Summary
+=======
+
+Problem:
+STP startup delay caused slow device connectivity.
+
+Solution:
+PortFast allows access ports to immediately enter the Forwarding State.
+
+Benefit:
+Faster network access while maintaining security through BPDU Guard.
+
+Limitation:
+Must not be used on switch-to-switch links.
+
+Next Practical:
+STP Attack Prevention
