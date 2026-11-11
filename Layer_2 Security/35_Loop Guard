@@ -1,0 +1,188 @@
+Name :
+================
+Loop Guard
+
+Why we did this
+================
+Root Guard protects against rogue switches becoming the Root Bridge.
+
+However, another problem can occur in STP environments.
+
+A link may become unidirectional.
+
+Example:
+
+Switch A can send traffic to Switch B
+
+BUT
+
+Switch B cannot send traffic back to Switch A
+
+As a result, BPDUs stop arriving on one side of the link.
+
+STP may incorrectly assume the path to the Root Bridge has failed and move a previously blocked port into the Forwarding state.
+
+This can create:
+
+- Layer 2 Loops
+- Broadcast Storms
+- MAC Table Instability
+- Network Outages
+
+To prevent this issue, Cisco introduced Loop Guard.
+
+Loop Guard ensures that a non-designated port does not incorrectly transition to the forwarding state when expected BPDUs suddenly disappear.
+
+What will happen
+================
+1. STP is operating normally.
+2. Switch expects to receive BPDUs.
+3. Due to a unidirectional link failure, BPDUs stop arriving.
+4. Instead of moving to Forwarding State:
+   - Loop Guard activates.
+   - Port enters Loop-Inconsistent State.
+5. Traffic is blocked.
+6. Loop is prevented.
+7. When BPDUs return:
+   - Port automatically recovers.
+
+Example
+
+Normal Operation
+----------------
+
+Switch A -------- Switch B
+      \          /
+       \        /
+        Switch C
+
+One redundant link is blocked.
+
+STP operates normally.
+
+
+Link Failure
+------------
+
+Switch B stops receiving BPDUs.
+
+Without Loop Guard:
+
+Blocked Port
+      ↓
+Forwarding
+
+Result:
+--------
+Loop Created
+
+
+With Loop Guard:
+
+Blocked Port
+      ↓
+Loop-Inconsistent
+
+Result:
+--------
+Loop Prevented
+
+Advantages and Disadvantages of this, hence what came next
+==========================================================
+
+Advantages
+----------
+1. Prevents Layer 2 loops caused by unidirectional failures.
+2. Prevents unexpected forwarding state transitions.
+3. Protects STP topology.
+4. Automatically recovers when BPDUs return.
+5. Improves network stability.
+6. Reduces risk of broadcast storms.
+7. Recommended for redundant Layer 2 environments.
+
+Disadvantages
+-------------
+1. Requires proper STP design.
+2. Only works on non-designated ports.
+3. Does not detect physical link failures directly.
+4. May temporarily block traffic during inconsistencies.
+5. Additional STP features may still be required.
+
+Hence what came next
+--------------------
+Loop Guard protects against missing BPDUs.
+
+However, it does not actually detect whether a physical link has become unidirectional.
+
+Administrators wanted a feature that directly detects one-way communication failures.
+
+This led to:
+
+UDLD (Unidirectional Link Detection)
+
+which actively checks whether both sides of a link can communicate and disables the link if unidirectional communication is detected.
+
+One-Shot Configuration
+======================
+
+Enable Loop Guard Globally
+
+Switch(config)# spanning-tree loopguard default
+
+OR
+
+
+Enable Loop Guard Per Interface
+
+Switch(config)# interface g0/1
+Switch(config-if)# spanning-tree guard loop
+
+Verification
+============
+
+show spanning-tree summary
+
+show spanning-tree inconsistentports
+
+show spanning-tree interface g0/1 detail
+
+Expected Result
+===============
+
+Normal Operation:
+-----------------
+Port Operates Normally
+
+BPDUs Missing:
+--------------
+Port Enters Loop-Inconsistent State
+
+Layer 2 Loop:
+-------------
+Prevented
+
+Broadcast Storm:
+----------------
+Prevented
+
+Recovery:
+---------
+Automatic When BPDUs Return
+
+Summary
+=======
+
+Problem:
+A unidirectional link failure can cause STP to incorrectly move a blocked port into forwarding state, creating a loop.
+
+Solution:
+Loop Guard keeps the port in a protected Loop-Inconsistent state when expected BPDUs disappear.
+
+Benefit:
+Prevents Layer 2 loops and improves STP stability.
+
+Limitation:
+Does not directly detect one-way physical link failures.
+
+Next Practical:
+UDLD (Unidirectional Link Detection)
