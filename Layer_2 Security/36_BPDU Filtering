@@ -1,0 +1,150 @@
+Name :
+================
+BPDU Filtering
+
+Why we did this
+================
+BPDU Guard disables a port whenever a BPDU is received on an access port.
+
+However, in some special environments, administrators want a port to:
+
+- Operate as PortFast
+- Ignore STP participation
+- Not send BPDUs
+- Not process received BPDUs
+
+To achieve this, Cisco introduced BPDU Filtering.
+
+BPDU Filtering suppresses BPDU transmission and reception on selected interfaces.
+
+This effectively removes the port from STP operations.
+
+What will happen
+================
+1. PortFast-enabled ports stop sending BPDUs.
+2. Incoming BPDUs may be ignored.
+3. The port behaves like a normal edge port.
+4. STP does not build topology information through that port.
+5. Faster port activation occurs.
+
+Example
+
+Without BPDU Filtering
+----------------------
+
+PC -------- Switch
+
+Switch sends BPDUs periodically.
+
+Result:
+--------
+Port participates in STP.
+
+
+With BPDU Filtering
+-------------------
+
+PC -------- Switch
+
+BPDUs Suppressed
+
+Result:
+--------
+Port does not exchange BPDUs.
+
+Advantages and Disadvantages of this, hence what came next
+==========================================================
+
+Advantages
+----------
+1. Reduces unnecessary BPDU processing.
+2. Useful for edge/user ports.
+3. Faster network access for end devices.
+4. Prevents STP interaction on selected ports.
+5. Useful in controlled environments.
+6. Works together with PortFast.
+
+Disadvantages
+-------------
+1. Can hide STP topology changes.
+2. May create Layer 2 loops if misused.
+3. Less secure than BPDU Guard.
+4. Not recommended on switch-to-switch links.
+5. Misconfiguration can cause serious network outages.
+
+Hence what came next
+--------------------
+Administrators realized that end-user ports should come online immediately instead of waiting through STP states.
+
+This led to:
+
+PortFast
+
+which allows access ports to transition immediately to the Forwarding state while remaining protected by BPDU Guard.
+
+One-Shot Configuration
+======================
+
+Enable BPDU Filtering Per Interface
+
+Switch(config)# interface fa0/1
+Switch(config-if)# spanning-tree bpdufilter enable
+
+
+OR
+
+
+Enable Globally on PortFast Ports
+
+Switch(config)# spanning-tree portfast default
+Switch(config)# spanning-tree portfast bpdufilter default
+
+Verification
+============
+
+show spanning-tree interface fa0/1 detail
+
+show spanning-tree summary
+
+show running-config interface fa0/1
+
+Expected Result
+===============
+
+BPDUs Sent:
+-----------
+Suppressed
+
+BPDUs Received:
+---------------
+Ignored (depending on configuration)
+
+STP Participation:
+------------------
+Disabled on that port
+
+Port Status:
+------------
+Forwarding
+
+Security:
+---------
+Reduced STP visibility, use with caution
+
+Summary
+=======
+
+Problem:
+Some edge ports do not require STP participation and administrators wanted to suppress BPDU processing.
+
+Solution:
+BPDU Filtering suppresses BPDU transmission and reception on selected ports.
+
+Benefit:
+Reduces STP interactions and allows simplified edge-port operation.
+
+Limitation:
+Can hide STP events and create loops if used incorrectly.
+
+Next Practical:
+PortFast Security
