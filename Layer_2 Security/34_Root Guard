@@ -1,0 +1,179 @@
+Name :
+================
+Root Guard
+
+Why we did this
+================
+BPDU Guard protects access ports from rogue switches.
+
+However, on legitimate switch-to-switch links, BPDUs are expected.
+
+An attacker or misconfigured switch connected to the network may advertise a better Bridge Priority and attempt to become the Root Bridge.
+
+If this happens:
+
+- STP topology changes
+- Traffic paths change
+- Network performance degrades
+- Traffic may be redirected
+- Network instability may occur
+
+Administrators wanted to ensure that specific switches always remain the Root Bridge.
+
+To solve this problem, Cisco introduced Root Guard.
+
+Root Guard prevents a neighboring switch from becoming the Root Bridge.
+
+What will happen
+================
+1. Root Guard is enabled on selected ports.
+2. Port operates normally.
+3. If the neighbor advertises a superior BPDU:
+   - Root Guard detects it.
+   - Port enters Root-Inconsistent State.
+   - Traffic on that port is blocked.
+4. Existing Root Bridge remains unchanged.
+5. Once superior BPDUs stop:
+   - Port automatically recovers.
+
+Example
+
+Normal Operation
+----------------
+
+Core Switch
+(Root Bridge)
+      |
+      |
+Distribution Switch
+
+Result:
+--------
+Stable STP Topology
+
+
+Attack Scenario
+---------------
+
+Core Switch
+(Root Bridge)
+      |
+      |
+Rogue Switch
+
+Rogue Switch Priority:
+0
+
+Superior BPDU Sent
+
+Result:
+--------
+Root Guard Activated
+
+Port enters Root-Inconsistent State
+
+Root Bridge Protected
+
+Advantages and Disadvantages of this, hence what came next
+==========================================================
+
+Advantages
+----------
+1. Protects Root Bridge election.
+2. Prevents STP topology manipulation.
+3. Automatically recovers after violation removal.
+4. Maintains network stability.
+5. Stops unauthorized switches from becoming Root Bridge.
+6. Recommended on designated downstream ports.
+7. Improves Layer 2 resilience.
+
+Disadvantages
+-------------
+1. Incorrect placement may block legitimate switches.
+2. Requires STP design planning.
+3. Protects only Root Bridge election.
+4. Does not detect unidirectional link failures.
+5. Additional STP security features may still be required.
+
+Hence what came next
+--------------------
+Even with Root Guard enabled, a unidirectional link failure can still cause incorrect STP calculations.
+
+Example:
+
+Switch A receives BPDUs from Switch B
+
+But
+
+Switch B cannot receive BPDUs from Switch A
+
+This can create unexpected Layer 2 loops.
+
+To protect against this condition, Cisco introduced:
+
+Loop Guard
+
+which prevents ports from incorrectly transitioning to the forwarding state when BPDUs unexpectedly stop.
+
+One-Shot Configuration
+======================
+
+Configure Root Guard on Downstream Ports
+
+Switch(config)# interface g0/1
+Switch(config-if)# spanning-tree guard root
+
+OR
+
+Switch(config)# interface range g0/1-2
+Switch(config-if-range)# spanning-tree guard root
+
+Verification
+============
+
+show spanning-tree inconsistentports
+
+show spanning-tree interface g0/1 detail
+
+show spanning-tree summary
+
+Expected Result
+===============
+
+Normal BPDUs:
+-------------
+Port Forwards Normally
+
+Superior BPDU Received:
+-----------------------
+Port Enters Root-Inconsistent State
+
+Root Bridge:
+------------
+Protected
+
+Topology Stability:
+-------------------
+Maintained
+
+Automatic Recovery:
+-------------------
+Occurs When Superior BPDUs Stop
+
+Summary
+=======
+
+Problem:
+A rogue or misconfigured switch could advertise superior BPDUs and become the Root Bridge.
+
+Solution:
+Root Guard prevents downstream switches from taking over the Root Bridge role.
+
+Benefit:
+Maintains a stable STP topology and protects network design.
+
+Limitation:
+Does not protect against unidirectional link failures.
+
+Next Practical:
+Loop Guard
