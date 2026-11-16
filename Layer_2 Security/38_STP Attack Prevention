@@ -1,0 +1,201 @@
+Name :
+================
+STP Attack Prevention
+
+Why we did this
+================
+Spanning Tree Protocol (STP) protects the network from Layer 2 loops.
+
+However, attackers can exploit STP by sending malicious BPDUs and manipulating the network topology.
+
+Common STP attacks include:
+
+- Rogue Root Bridge Attack
+- BPDU Spoofing
+- STP Manipulation
+- Unexpected Topology Changes
+- Layer 2 Loop Creation
+
+Impact:
+
+- Network instability
+- Traffic redirection
+- Broadcast storms
+- Man-in-the-Middle opportunities
+- Network outages
+
+To secure STP, Cisco recommends multiple protection mechanisms working together.
+
+This approach is called STP Attack Prevention.
+
+What will happen
+================
+1. Access ports use PortFast.
+2. BPDU Guard protects edge ports.
+3. Root Guard protects Root Bridge election.
+4. Loop Guard prevents loop creation.
+5. Trunk links are secured.
+6. Rogue switches cannot influence STP topology.
+7. Network remains stable and predictable.
+
+Example
+
+Without Protection
+------------------
+
+Rogue Switch
+      |
+      |
+Production Network
+
+Rogue Switch advertises:
+
+Priority = 0
+
+Result:
+--------
+Becomes Root Bridge
+
+Traffic Paths Change
+
+Network Instability Occurs
+
+
+With STP Attack Prevention
+--------------------------
+
+BPDU Guard:
+------------
+Blocks rogue switch on access ports
+
+Root Guard:
+------------
+Protects Root Bridge
+
+Loop Guard:
+------------
+Protects against BPDU loss
+
+Result:
+--------
+Stable STP Topology
+
+Advantages and Disadvantages of this, hence what came next
+==========================================================
+
+Advantages
+----------
+1. Protects Root Bridge election.
+2. Prevents rogue switch attacks.
+3. Prevents STP manipulation.
+4. Reduces loop risks.
+5. Improves network stability.
+6. Reduces outage possibilities.
+7. Strengthens Layer 2 security posture.
+
+Disadvantages
+-------------
+1. Requires proper STP design.
+2. More configuration overhead.
+3. Incorrect placement may block valid links.
+4. Troubleshooting can become more complex.
+5. Does not detect physical one-way links automatically.
+
+Hence what came next
+--------------------
+Loop Guard helps when BPDUs disappear unexpectedly.
+
+However, it does not actively test whether the physical link is working in both directions.
+
+Administrators wanted a mechanism that could detect one-way communication failures.
+
+This led to:
+
+UDLD (Unidirectional Link Detection)
+
+which actively checks both sides of a fiber or Ethernet link and disables the link if a unidirectional condition is detected.
+
+One-Shot Configuration
+======================
+
+Enable PortFast and BPDU Guard
+
+Switch(config)# spanning-tree portfast default
+Switch(config)# spanning-tree portfast bpduguard default
+
+
+Protect Root Bridge
+
+Switch(config)# interface g0/1
+Switch(config-if)# spanning-tree guard root
+
+
+Protect Against Missing BPDUs
+
+Switch(config)# spanning-tree loopguard default
+
+
+(Optional)
+Configure Root Bridge
+
+Switch(config)# spanning-tree vlan 10 root primary
+
+Verification
+============
+
+show spanning-tree
+
+show spanning-tree summary
+
+show spanning-tree inconsistentports
+
+show spanning-tree root
+
+Expected Result
+===============
+
+Access Ports:
+-------------
+Protected by BPDU Guard
+
+Root Bridge:
+------------
+Protected by Root Guard
+
+Blocked Ports:
+--------------
+Protected by Loop Guard
+
+Rogue Switch:
+-------------
+Prevented
+
+Layer 2 Loops:
+--------------
+Prevented
+
+Network Stability:
+------------------
+Maintained
+
+Summary
+=======
+
+Problem:
+Attackers can manipulate STP using rogue switches and malicious BPDUs.
+
+Solution:
+Use multiple STP security features together:
+- PortFast
+- BPDU Guard
+- Root Guard
+- Loop Guard
+
+Benefit:
+Comprehensive protection against STP-based attacks and topology manipulation.
+
+Limitation:
+Does not directly detect unidirectional link failures.
+
+Next Practical:
+UDLD (Unidirectional Link Detection)
