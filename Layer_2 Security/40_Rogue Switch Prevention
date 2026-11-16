@@ -1,0 +1,182 @@
+Name :
+================
+Rogue Switch Prevention
+
+Why we did this
+================
+A Rogue Switch is an unauthorized switch connected to the network.
+
+Attackers may connect a rogue switch to:
+
+- Become Root Bridge
+- Capture traffic
+- Create Layer 2 loops
+- Launch VLAN Hopping attacks
+- Expand unauthorized network access
+
+Example:
+
+Employee connects a personal switch.
+
+OR
+
+Attacker connects a rogue switch in a conference room.
+
+Without protection, the switch may participate in STP, negotiate trunks, and influence network topology.
+
+Administrators needed a way to prevent unauthorized switches from joining the network.
+
+This led to Rogue Switch Prevention.
+
+What will happen
+================
+1. Access ports are hardened.
+2. BPDU Guard protects user ports.
+3. DTP is disabled.
+4. Port Security limits connected devices.
+5. Unauthorized switches are detected.
+6. Rogue switch cannot influence STP.
+7. Rogue switch cannot form unauthorized trunks.
+
+Example
+
+Without Protection
+------------------
+
+Rogue Switch
+      |
+      |
+Switch Access Port
+
+Result:
+--------
+May send BPDUs
+May Become Root Bridge
+May Create Trunk Link
+
+
+With Protection
+---------------
+
+Rogue Switch
+      |
+      |
+BPDU Guard Enabled Port
+
+Result:
+--------
+BPDU Detected
+Port Err-Disabled
+Attack Stopped
+
+Advantages and Disadvantages of this, hence what came next
+==========================================================
+
+Advantages
+----------
+1. Prevents unauthorized switches.
+2. Protects STP topology.
+3. Prevents rogue trunk creation.
+4. Reduces attack surface.
+5. Improves network security.
+6. Prevents accidental switch connections.
+7. Helps maintain network stability.
+
+Disadvantages
+-------------
+1. Requires proper port configuration.
+2. Legitimate switch connections may be blocked.
+3. Additional management overhead.
+4. Multiple security features must be combined.
+5. Not a complete endpoint authentication solution.
+
+Hence what came next
+--------------------
+Even after preventing rogue switches, administrators needed a way to detect actual link communication failures.
+
+A cable may appear UP while traffic passes only in one direction.
+
+This led to:
+
+UDLD (Unidirectional Link Detection)
+
+which detects one-way communication failures and disables affected links.
+
+One-Shot Configuration
+======================
+
+Access Port Hardening
+
+Switch(config)# interface range fa0/1-24
+Switch(config-if-range)# switchport mode access
+Switch(config-if-range)# switchport nonegotiate
+
+
+Enable PortFast
+
+Switch(config-if-range)# spanning-tree portfast
+
+
+Enable BPDU Guard
+
+Switch(config-if-range)# spanning-tree bpduguard enable
+
+
+Enable Port Security
+
+Switch(config-if-range)# switchport port-security
+Switch(config-if-range)# switchport port-security maximum 1
+Switch(config-if-range)# switchport port-security violation shutdown
+Switch(config-if-range)# switchport port-security mac-address sticky
+
+Verification
+============
+
+show spanning-tree summary
+
+show port-security
+
+show interfaces status
+
+show errdisable recovery
+
+Expected Result
+===============
+
+Normal User Device:
+-------------------
+Allowed
+
+Unauthorized Switch:
+--------------------
+Blocked
+
+BPDU Detected:
+--------------
+Port Err-Disabled
+
+Rogue Trunk:
+------------
+Prevented
+
+Network Stability:
+------------------
+Maintained
+
+Summary
+=======
+
+Problem:
+Unauthorized switches can join the network and manipulate STP, trunks, and VLANs.
+
+Solution:
+Combine BPDU Guard, Port Security, DTP Disable, and Access Port Hardening.
+
+Benefit:
+Prevents rogue switches from participating in the network.
+
+Limitation:
+Does not detect one-way physical link failures.
+
+Next Practical:
+UDLD (Unidirectional Link Detection)
