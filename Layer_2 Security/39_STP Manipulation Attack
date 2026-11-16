@@ -1,0 +1,189 @@
+Name :
+================
+STP Manipulation Attack
+
+Why we did this
+================
+Before implementing STP security features such as:
+
+- BPDU Guard
+- Root Guard
+- Loop Guard
+
+administrators must understand how attackers manipulate STP.
+
+STP elects a Root Bridge based on:
+
+1. Bridge Priority
+2. MAC Address
+
+The switch with the lowest Bridge ID becomes the Root Bridge.
+
+An attacker can exploit this by connecting a rogue switch and advertising a superior BPDU with a very low priority.
+
+The attacker attempts to become the new Root Bridge.
+
+Once successful, network traffic paths change and may flow through the attacker's device.
+
+What will happen
+================
+1. Attacker connects a rogue switch.
+2. Rogue switch sends superior BPDUs.
+3. Existing switches compare BPDU information.
+4. Rogue switch wins the Root Bridge election.
+5. STP recalculates topology.
+6. Traffic paths change.
+7. Network may become unstable.
+8. Attacker may observe or manipulate traffic.
+
+Example
+
+Before Attack
+-------------
+
+Core Switch
+(Root Bridge)
+      |
+      |
+Distribution Switch
+      |
+      |
+Access Switch
+
+Result:
+--------
+Stable STP Topology
+
+
+During Attack
+-------------
+
+Rogue Switch
+
+Priority = 0
+
+Sends Superior BPDUs
+
+Result:
+--------
+Rogue Switch Becomes Root Bridge
+
+
+After Attack
+------------
+
+Traffic Path Changes
+
+Clients
+   |
+   |
+Rogue Switch
+   |
+   |
+Core Network
+
+Result:
+--------
+Traffic Redirection Possible
+
+Advantages and Disadvantages of this, hence what came next
+==========================================================
+
+Advantages (For Learning Purposes)
+----------------------------------
+1. Demonstrates STP weaknesses.
+2. Helps understand Root Bridge elections.
+3. Useful for security awareness training.
+4. Validates STP protection mechanisms.
+5. Demonstrates the importance of Root Guard.
+
+Disadvantages
+-------------
+1. Changes STP topology unexpectedly.
+2. Causes network instability.
+3. Can increase convergence time.
+4. May redirect sensitive traffic.
+5. Can lead to Man-in-the-Middle opportunities.
+6. Can create outages.
+7. Difficult to troubleshoot during production incidents.
+
+Hence what came next
+--------------------
+Administrators needed a way to prevent unauthorized switches from becoming the Root Bridge.
+
+Cisco introduced:
+
+Root Guard
+
+Root Guard monitors incoming BPDUs and blocks ports receiving superior BPDUs.
+
+Result:
+--------
+The legitimate Root Bridge remains protected.
+
+One-Shot Lab Configuration
+==========================
+
+Vulnerable Configuration
+
+Switch(config)# spanning-tree mode rapid-pvst
+
+(No Root Guard Configured)
+
+(Optional) Make Core Root
+
+Switch(config)# spanning-tree vlan 10 priority 32768
+
+
+Attacker Switch
+===============
+
+Switch(config)# spanning-tree vlan 10 priority 0
+
+Verification
+============
+
+show spanning-tree vlan 10
+
+show spanning-tree root
+
+Expected Result
+===============
+
+Before Attack:
+--------------
+Core Switch = Root Bridge
+
+After Attack:
+-------------
+Rogue Switch = Root Bridge
+
+Topology Change:
+----------------
+Occurs
+
+Traffic Path:
+-------------
+May Change
+
+Security Impact:
+----------------
+High
+
+Summary
+=======
+
+Problem:
+An attacker can send superior BPDUs and take control of the STP topology.
+
+Attack:
+Rogue switch advertises a lower STP priority to become the Root Bridge.
+
+Impact:
+Traffic paths change, causing instability and possible traffic interception.
+
+Limitation:
+Attack remains possible until Root Guard and other STP security controls are implemented.
+
+Next Practical:
+Rogue Switch Prevention
