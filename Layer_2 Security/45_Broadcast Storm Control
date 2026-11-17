@@ -1,0 +1,175 @@
+Name :
+================
+Broadcast Storm Control
+
+Why we did this
+================
+In a Layer 2 network, broadcast traffic is necessary for protocols such as:
+
+- ARP
+- DHCP
+- Service Discovery
+
+However, excessive broadcast traffic can consume network bandwidth and CPU resources.
+
+Common causes:
+
+- Layer 2 Loops
+- Malware
+- Misconfigured Devices
+- Broadcast Flooding Attacks
+
+When broadcast traffic becomes excessive, the network may become unusable.
+
+This condition is known as a Broadcast Storm.
+
+To protect the network, Cisco introduced Broadcast Storm Control.
+
+Storm Control limits the amount of broadcast traffic allowed on a switch port.
+
+What will happen
+================
+1. Switch monitors broadcast traffic.
+2. A threshold is configured.
+3. If broadcast traffic exceeds the threshold:
+   - Traffic is dropped.
+   - Traffic is suppressed.
+   - Optional traps/logs are generated.
+4. Network remains stable.
+5. Broadcast storms are contained to the affected port.
+
+Example
+
+Normal Operation
+----------------
+
+Broadcast Traffic:
+2%
+
+Threshold:
+10%
+
+Result:
+--------
+Traffic Allowed
+
+
+Broadcast Storm
+---------------
+
+Broadcast Traffic:
+40%
+
+Threshold:
+10%
+
+Result:
+--------
+Excess Broadcast Traffic Dropped
+
+Network Protected
+
+Advantages and Disadvantages of this, hence what came next
+==========================================================
+
+Advantages
+----------
+1. Protects against broadcast storms.
+2. Prevents bandwidth exhaustion.
+3. Improves network stability.
+4. Protects switch CPU resources.
+5. Works automatically after configuration.
+6. Limits attack impact.
+7. Simple to implement.
+
+Disadvantages
+-------------
+1. Incorrect thresholds may drop legitimate traffic.
+2. Requires traffic analysis and tuning.
+3. Does not stop multicast storms.
+4. Does not stop unknown unicast storms.
+5. Does not eliminate Layer 2 loops themselves.
+
+Hence what came next
+--------------------
+Administrators realized that excessive Multicast traffic could cause similar problems.
+
+Examples:
+
+- IPTV
+- Video Streaming
+- Misconfigured Applications
+
+This led to:
+
+Multicast Storm Control
+
+which limits excessive multicast traffic on switch ports.
+
+One-Shot Configuration
+======================
+
+Configure Storm Control
+
+Switch(config)# interface fa0/1
+Switch(config-if)# storm-control broadcast level 10.00
+
+
+(Optional)
+
+Switch(config-if)# storm-control action trap
+
+
+(Optional)
+
+Switch(config-if)# storm-control action shutdown
+
+Verification
+============
+
+show storm-control
+
+show storm-control interface fa0/1
+
+show running-config interface fa0/1
+
+Expected Result
+===============
+
+Normal Broadcast Traffic:
+-------------------------
+Allowed
+
+Traffic Below Threshold:
+------------------------
+Forwarded
+
+Traffic Above Threshold:
+------------------------
+Dropped
+
+Network Stability:
+------------------
+Maintained
+
+Broadcast Storm:
+----------------
+Contained
+
+Summary
+=======
+
+Problem:
+Excessive broadcast traffic can consume bandwidth and cause network outages.
+
+Solution:
+Broadcast Storm Control limits the amount of broadcast traffic allowed on a switch port.
+
+Benefit:
+Protects network resources and prevents broadcast storms from affecting the entire network.
+
+Limitation:
+Does not protect against multicast or unknown unicast storms.
+
+Next Practical:
+Multicast Storm Control
