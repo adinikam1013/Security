@@ -1,0 +1,177 @@
+Name :
+================
+LACP Security
+
+Why we did this
+================
+EtherChannel combines multiple physical links into a single logical link.
+
+LACP (Link Aggregation Control Protocol) is the industry-standard protocol used to dynamically form EtherChannels.
+
+Without proper controls:
+
+- Unauthorized links may join the bundle.
+- Misconfigured devices may affect traffic flow.
+- Rogue switches may attempt to participate in aggregation.
+- Traffic loss and instability can occur.
+
+To improve reliability and security, LACP validates channel members before allowing them to join the EtherChannel.
+
+What will happen
+================
+1. LACP packets are exchanged between devices.
+2. Neighbor devices verify compatibility.
+3. Only approved interfaces join the bundle.
+4. Mismatched ports are rejected.
+5. Invalid links remain outside the EtherChannel.
+6. Stable and secure aggregation is maintained.
+
+Example
+
+Without LACP
+------------
+
+Switch A
+   ||
+   ||
+Switch B
+
+Mode: ON
+
+Result:
+--------
+No verification
+Misconfigurations may occur
+
+
+With LACP
+---------
+
+Switch A
+   ||
+Port-Channel1
+   ||
+Switch B
+
+Mode: ACTIVE
+
+Result:
+--------
+Interfaces validated
+Unauthorized links rejected
+
+Advantages and Disadvantages of this, hence what came next
+==========================================================
+
+Advantages
+----------
+1. Validates EtherChannel members.
+2. Prevents accidental misconfigurations.
+3. Improves redundancy.
+4. Supports automatic negotiation.
+5. Detects mismatched configurations.
+6. Industry standard protocol.
+7. More secure than Mode ON.
+
+Disadvantages
+-------------
+1. Additional protocol overhead.
+2. Requires matching configurations.
+3. Troubleshooting may be more complex.
+4. Does not encrypt traffic.
+5. Does not prevent broadcast storms.
+
+Hence what came next
+--------------------
+Even after securing EtherChannels with LACP, attackers could still manipulate Cisco proprietary EtherChannel negotiations.
+
+Cisco therefore provides:
+
+PAgP Security
+
+for environments using Cisco's proprietary Port Aggregation Protocol (PAgP).
+
+One-Shot Configuration
+======================
+
+Configure LACP
+
+Switch(config)# interface range g0/1-2
+Switch(config-if-range)# channel-group 1 mode active
+
+
+Configure Secure Port-Channel
+
+Switch(config)# interface port-channel1
+Switch(config-if)# switchport mode trunk
+Switch(config-if)# switchport trunk allowed vlan 10,20,30
+Switch(config-if)# switchport trunk native vlan 999
+Switch(config-if)# switchport nonegotiate
+
+
+(Optional)
+
+Switch(config)# interface range g0/1-2
+Switch(config-if-range)# udld port aggressive
+
+
+(Optional)
+
+Switch(config)# interface port-channel1
+Switch(config-if)# spanning-tree guard root
+
+Verification
+============
+
+show etherchannel summary
+
+show lacp neighbor
+
+show lacp internal
+
+show interfaces port-channel 1
+
+Expected Result
+===============
+
+LACP:
+-----
+Operational
+
+Member Links:
+-------------
+Verified
+
+Unauthorized Links:
+-------------------
+Rejected
+
+EtherChannel:
+-------------
+Stable
+
+Redundancy:
+-----------
+Available
+
+Security:
+---------
+Improved
+
+Summary
+=======
+
+Problem:
+Unauthorized or misconfigured links can affect EtherChannel operation.
+
+Solution:
+Use LACP to validate and negotiate EtherChannel membership.
+
+Benefit:
+More secure and reliable than static EtherChannel (Mode ON).
+
+Limitation:
+Does not protect against broadcast storms or excessive traffic.
+
+Next Practical:
+PAgP Security
