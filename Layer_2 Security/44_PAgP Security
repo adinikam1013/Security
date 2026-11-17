@@ -1,0 +1,187 @@
+Name :
+================
+PAgP Security
+
+Why we did this
+================
+EtherChannel can be formed using:
+
+- LACP (IEEE Standard)
+- PAgP (Cisco Proprietary)
+
+PAgP (Port Aggregation Protocol) allows Cisco switches to dynamically negotiate and form an EtherChannel.
+
+If PAgP is not properly controlled:
+
+- Unauthorized links may join the bundle
+- Misconfigured interfaces may cause instability
+- Traffic may be forwarded incorrectly
+- STP recalculations may occur
+
+Administrators needed a secure method to ensure only valid interfaces participate in PAgP EtherChannels.
+
+What will happen
+================
+1. PAgP packets are exchanged between Cisco devices.
+2. Interfaces verify compatibility.
+3. Matching interfaces join the EtherChannel.
+4. Mismatched interfaces are rejected.
+5. Stable bundle formation occurs.
+6. Traffic forwarding remains consistent.
+
+Example
+
+Without PAgP Validation
+-----------------------
+
+Switch A
+   ||
+   ||
+Switch B
+
+Misconfigured Interface Added
+
+Result:
+--------
+Traffic Issues
+Network Instability
+
+
+With PAgP
+---------
+
+Switch A
+   ||
+Port-Channel1
+   ||
+Switch B
+
+PAgP validates interfaces
+
+Result:
+--------
+Only Valid Interfaces Join
+
+Advantages and Disadvantages of this, hence what came next
+==========================================================
+
+Advantages
+----------
+1. Automatic EtherChannel negotiation.
+2. Detects configuration mismatches.
+3. Improves redundancy.
+4. Simplifies EtherChannel deployment.
+5. Prevents accidental member additions.
+6. Cisco proprietary optimization.
+7. Improves link reliability.
+
+Disadvantages
+-------------
+1. Cisco proprietary protocol.
+2. Not supported on non-Cisco devices.
+3. Additional protocol overhead.
+4. Less flexible than standard-based LACP.
+5. Does not prevent broadcast storms.
+
+Hence what came next
+--------------------
+Even with secure EtherChannels, excessive traffic can still overwhelm a network.
+
+Examples:
+
+- Broadcast Storms
+- Multicast Flooding
+- Unknown Unicast Flooding
+
+Administrators needed traffic limiting mechanisms.
+
+This led to:
+
+Storm Control
+
+which limits excessive Layer 2 traffic before it impacts the network.
+
+One-Shot Configuration
+======================
+
+Configure PAgP
+
+Switch(config)# interface range g0/1-2
+Switch(config-if-range)# channel-group 1 mode desirable
+
+
+Configure Secure Port-Channel
+
+Switch(config)# interface port-channel1
+Switch(config-if)# switchport mode trunk
+Switch(config-if)# switchport trunk allowed vlan 10,20,30
+Switch(config-if)# switchport trunk native vlan 999
+Switch(config-if)# switchport nonegotiate
+
+
+(Optional)
+
+Switch(config)# interface port-channel1
+Switch(config-if)# spanning-tree guard root
+
+
+(Optional)
+
+Switch(config)# interface range g0/1-2
+Switch(config-if-range)# udld port aggressive
+
+Verification
+============
+
+show etherchannel summary
+
+show pagp neighbor
+
+show pagp interface
+
+show interfaces port-channel 1
+
+Expected Result
+===============
+
+PAgP:
+-----
+Operational
+
+Valid Interfaces:
+-----------------
+Bundled Successfully
+
+Invalid Interfaces:
+-------------------
+Rejected
+
+Port-Channel:
+-------------
+Stable
+
+Redundancy:
+-----------
+Available
+
+Security:
+---------
+Improved
+
+Summary
+=======
+
+Problem:
+Misconfigured or unauthorized links can affect EtherChannel operation.
+
+Solution:
+Use PAgP negotiation with trunk hardening, VLAN restrictions, and security controls.
+
+Benefit:
+Provides reliable EtherChannel formation in Cisco-only environments.
+
+Limitation:
+Only works between Cisco devices.
+
+Next Practical:
+Broadcast Storm Control
