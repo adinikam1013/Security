@@ -1,0 +1,206 @@
+Name :
+================
+EtherChannel Security
+
+Why we did this
+================
+EtherChannel combines multiple physical links into a single logical link.
+
+Benefits:
+
+- Increased Bandwidth
+- Link Redundancy
+- Load Balancing
+- Faster Convergence
+
+However, attackers can abuse improperly configured EtherChannels.
+
+Common Risks:
+
+- Rogue Switch Connections
+- Unauthorized EtherChannel Formation
+- STP Manipulation
+- Traffic Interception
+- Misconfigured Channel Members
+
+If an attacker successfully joins an EtherChannel, they may gain access to critical network traffic.
+
+To secure bundled links, Cisco recommends EtherChannel Security.
+
+What will happen
+================
+1. Only authorized interfaces join the EtherChannel.
+2. LACP or PAgP negotiation is controlled.
+3. Trunk settings must match on both sides.
+4. Unauthorized devices cannot become valid channel members.
+5. STP topology remains stable.
+6. Redundant links operate securely.
+
+Example
+
+Without EtherChannel Security
+-----------------------------
+
+Switch A
+   ||
+   ||
+Switch B
+
+Attacker plugs into one of the links.
+
+Result:
+--------
+Potential misconfiguration
+Potential traffic disruption
+Unwanted EtherChannel behavior
+
+
+With EtherChannel Security
+--------------------------
+Switch A
+   ||
+ Port-Channel1
+   ||
+Switch B
+
+Only authorized interfaces allowed.
+
+Result:
+--------
+Stable and secure operation.
+
+Advantages and Disadvantages of this, hence what came next
+==========================================================
+
+Advantages
+----------
+1. Protects aggregated links.
+2. Prevents unauthorized channel formation.
+3. Improves redundancy.
+4. Enhances availability.
+5. Supports secure load balancing.
+6. Improves STP stability.
+7. Reduces link-related failures.
+
+Disadvantages
+-------------
+1. Requires configuration consistency.
+2. Troubleshooting can be complex.
+3. Misconfigured members may be suspended.
+4. Additional administrative effort.
+5. Must be monitored regularly.
+
+Hence what came next
+--------------------
+Even with secure EtherChannels, excessive Layer 2 traffic can still overwhelm the network.
+
+Examples:
+
+- Broadcast Storms
+- Malware Outbreaks
+- Switching Loops
+- Faulty Devices
+
+Administrators needed a way to limit excessive traffic.
+
+This led to:
+
+Storm Control
+
+which limits Broadcast, Multicast, and Unknown Unicast traffic.
+
+One-Shot Configuration
+======================
+
+Configure EtherChannel Using LACP
+
+Switch(config)# interface range g0/1-2
+Switch(config-if-range)# channel-group 1 mode active
+
+
+Configure Port-Channel
+
+Switch(config)# interface port-channel 1
+Switch(config-if)# switchport mode trunk
+Switch(config-if)# switchport trunk allowed vlan 10,20,30
+Switch(config-if)# switchport nonegotiate
+
+
+(Optional)
+
+Enable UDLD on Member Links
+
+Switch(config)# interface range g0/1-2
+Switch(config-if-range)# udld port aggressive
+====================================================
+
+or 
+
+
+interface range g0/1-2
+ channel-group 1 mode active
+ udld port aggressive
+
+interface port-channel1
+ switchport mode trunk
+ switchport trunk allowed vlan 10,20,30
+ switchport trunk native vlan 999
+ switchport nonegotiate
+ spanning-tree guard root
+
+
+Verification
+============
+
+show etherchannel summary
+
+show etherchannel port-channel
+
+show interfaces port-channel 1
+
+show lacp neighbor
+
+Expected Result
+===============
+
+EtherChannel:
+-------------
+Up
+
+Member Ports:
+-------------
+Bundled Successfully
+
+Unauthorized Device:
+--------------------
+Cannot Join Bundle
+
+Trunk Security:
+---------------
+Applied
+
+Redundancy:
+-----------
+Available
+
+Network Stability:
+------------------
+Improved
+
+Summary
+=======
+
+Problem:
+Attackers or misconfigurations can affect bundled links and network stability.
+
+Solution:
+Secure EtherChannel using LACP, trunk hardening, VLAN restrictions, and consistent configurations.
+
+Benefit:
+Provides secure redundancy, load balancing, and high availability.
+
+Limitation:
+Does not control excessive broadcast or multicast traffic.
+
+Next Practical:
+Storm Control
