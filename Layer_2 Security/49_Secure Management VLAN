@@ -1,0 +1,194 @@
+Name :
+================
+Secure Management VLAN
+
+Why we did this
+================
+By default, switch management traffic is often carried on the same VLAN used by normal users.
+
+This creates several risks:
+
+- Unauthorized access to switch management interfaces
+- Increased attack surface
+- Easier reconnaissance by attackers
+- Exposure of SSH, SNMP and management services
+- Difficulty applying management-specific security policies
+
+Administrators wanted to separate management traffic from user traffic.
+
+To achieve this, a dedicated Management VLAN is created exclusively for managing network devices.
+
+This is known as a Secure Management VLAN.
+
+What will happen
+================
+1. A dedicated VLAN is created for management.
+2. Only administrators can access the management VLAN.
+3. Switch management traffic is separated from user traffic.
+4. SSH, SNMP and other management protocols use the Management VLAN.
+5. User devices cannot directly access management interfaces.
+6. Security and monitoring become easier.
+
+Example
+
+Before
+------
+
+Users VLAN 10
+
+PCs
+Servers
+Switch Management
+
+All in Same VLAN
+
+Result:
+--------
+Large Attack Surface
+
+
+After
+-----
+
+VLAN 10
+--------
+Users
+
+VLAN 99
+--------
+Management
+
+Switch Management IP:
+192.168.99.2
+
+Result:
+--------
+Management Traffic Isolated
+
+Advantages and Disadvantages of this, hence what came next
+==========================================================
+
+Advantages
+----------
+1. Separates management traffic from users.
+2. Reduces attack surface.
+3. Improves network security.
+4. Easier ACL implementation.
+5. Simplifies management monitoring.
+6. Supports SSH, SNMP and Syslog security.
+7. Follows security best practices.
+
+Disadvantages
+-------------
+1. Requires VLAN planning.
+2. Requires proper routing configuration.
+3. Additional administration required.
+4. Misconfiguration may block management access.
+5. Not a replacement for AAA or SSH security.
+
+Hence what came next
+--------------------
+Even with a dedicated Management VLAN, attackers may still attempt to access the switch management plane.
+
+Administrators needed to protect the management processes themselves.
+
+This led to:
+
+Management Plane Protection
+
+which secures:
+- SSH Access
+- SNMP
+- Management Services
+- Administrative Access
+
+One-Shot Configuration
+======================
+
+Create Management VLAN
+
+Switch(config)# vlan 99
+Switch(config-vlan)# name MANAGEMENT
+
+
+Assign Management IP
+
+Switch(config)# interface vlan 99
+Switch(config-if)# ip address 192.168.99.2 255.255.255.0
+Switch(config-if)# no shutdown
+
+
+Configure Default Gateway
+
+Switch(config)# ip default-gateway 192.168.99.1
+
+
+Assign Uplink Port
+
+Switch(config)# interface g0/1
+Switch(config-if)# switchport mode trunk
+Switch(config-if)# switchport trunk allowed vlan 10,20,30,99
+
+
+(Optional ACL Protection)
+
+Switch(config)# access-list 10 permit 192.168.99.0 0.0.0.255
+
+Switch(config)# line vty 0 4
+Switch(config-line)# access-class 10 in
+
+Verification
+============
+
+show vlan brief
+
+show ip interface brief
+
+show interfaces trunk
+
+show access-lists
+
+Expected Result
+===============
+
+Management VLAN:
+----------------
+VLAN 99
+
+User Access:
+------------
+Separated
+
+Management Access:
+------------------
+Dedicated
+
+Security:
+---------
+Improved
+
+Attack Surface:
+---------------
+Reduced
+
+Network Management:
+-------------------
+Centralized and Secure
+
+Summary
+=======
+
+Problem:
+User and management traffic shared the same VLAN, increasing security risks.
+
+Solution:
+Create a dedicated Management VLAN for network device administration.
+
+Benefit:
+Separates management traffic and improves overall network security.
+
+Limitation:
+Management services themselves still require protection.
+
+Next Practical:
+Management Plane Protection
