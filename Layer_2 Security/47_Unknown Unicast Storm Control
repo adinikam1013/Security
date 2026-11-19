@@ -1,0 +1,184 @@
+Name :
+================
+Unknown Unicast Storm Control
+
+Why we did this
+================
+Broadcast Storm Control protects Broadcast traffic.
+
+Multicast Storm Control protects Multicast traffic.
+
+However, another type of flooding can still occur:
+
+Unknown Unicast Traffic
+
+Unknown Unicast traffic occurs when the switch does not know the destination MAC address.
+
+Since the destination is unknown, the switch floods the frame out multiple ports.
+
+Normally this is not a problem.
+
+However, excessive Unknown Unicast traffic can result from:
+
+- CAM Table Overflow Attacks
+- MAC Flooding Attacks
+- Network Misconfigurations
+- Malware
+- Layer 2 Loops
+
+Large amounts of Unknown Unicast traffic can consume bandwidth and degrade network performance.
+
+To protect the network, Cisco introduced Unknown Unicast Storm Control.
+
+What will happen
+================
+1. Switch monitors Unknown Unicast traffic.
+2. A threshold is configured.
+3. Traffic below the threshold is forwarded normally.
+4. Traffic above the threshold is dropped.
+5. Excessive flooding is contained.
+6. Network stability is maintained.
+
+Example
+
+Normal Operation
+----------------
+
+Unknown Unicast Traffic:
+3%
+
+Threshold:
+10%
+
+Result:
+--------
+Traffic Allowed
+
+
+Flooding Scenario
+-----------------
+
+Unknown Unicast Traffic:
+35%
+
+Threshold:
+10%
+
+Result:
+--------
+Excess Traffic Dropped
+
+Network Protected
+
+Advantages and Disadvantages of this, hence what came next
+==========================================================
+
+Advantages
+----------
+1. Protects against Unknown Unicast flooding.
+2. Helps mitigate CAM Table Overflow attacks.
+3. Protects network bandwidth.
+4. Improves switch performance.
+5. Reduces excessive traffic flooding.
+6. Easy to implement.
+7. Improves Layer 2 stability.
+
+Disadvantages
+-------------
+1. Incorrect thresholds may affect legitimate traffic.
+2. Requires monitoring and tuning.
+3. Does not stop the attack source.
+4. Does not replace Port Security.
+5. Requires proper network design.
+
+Hence what came next
+--------------------
+After controlling:
+
+- Broadcast Traffic
+- Multicast Traffic
+- Unknown Unicast Traffic
+
+administrators wanted an automatic recovery mechanism when Storm Control actions were triggered.
+
+For example:
+
+- Broadcast Storm Occurred
+- Port Shutdown
+- Storm Ended
+
+The port should be able to recover automatically.
+
+This led to:
+
+Storm Control Recovery
+
+which restores normal operation after storm conditions are cleared.
+
+One-Shot Configuration
+======================
+
+Configure Unknown Unicast Storm Control
+
+Switch(config)# interface fa0/1
+Switch(config-if)# storm-control unicast level 10.00
+
+
+(Optional)
+
+Switch(config-if)# storm-control action trap
+
+
+(Optional)
+
+Switch(config-if)# storm-control action shutdown
+
+Verification
+============
+
+show storm-control
+
+show storm-control interface fa0/1
+
+show running-config interface fa0/1
+
+Expected Result
+===============
+
+Normal Unknown Unicast Traffic:
+-------------------------------
+Allowed
+
+Traffic Below Threshold:
+------------------------
+Forwarded
+
+Traffic Above Threshold:
+------------------------
+Dropped
+
+Network Stability:
+------------------
+Maintained
+
+Unknown Unicast Flooding:
+-------------------------
+Contained
+
+Summary
+=======
+
+Problem:
+Excessive Unknown Unicast traffic can flood the network and consume bandwidth.
+
+Solution:
+Unknown Unicast Storm Control limits the amount of Unknown Unicast traffic allowed on a switch port.
+
+Benefit:
+Protects network resources and helps mitigate CAM Table Overflow-related flooding.
+
+Limitation:
+Does not remove the source of the attack.
+
+Next Practical:
+Storm Control Recovery
