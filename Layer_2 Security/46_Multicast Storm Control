@@ -1,0 +1,171 @@
+Name :
+================
+Multicast Storm Control
+
+Why we did this
+================
+Broadcast Storm Control protects against excessive Broadcast traffic.
+
+However, excessive Multicast traffic can also impact network performance.
+
+Common sources include:
+
+- IPTV
+- Video Streaming
+- Live Broadcasting
+- Misconfigured Applications
+- Multicast Flooding Attacks
+
+When Multicast traffic becomes excessive:
+
+- Network bandwidth is consumed
+- Switch CPU utilization increases
+- End-user performance degrades
+- Legitimate applications are affected
+
+To prevent this, Cisco introduced Multicast Storm Control.
+
+Multicast Storm Control limits the amount of multicast traffic allowed on a switch port.
+
+What will happen
+================
+1. Switch monitors multicast traffic.
+2. A multicast threshold is configured.
+3. Traffic below the threshold is forwarded normally.
+4. Traffic above the threshold is dropped.
+5. Excessive multicast traffic is contained.
+6. Network resources remain protected.
+
+Example
+
+Normal Operation
+----------------
+
+Multicast Traffic:
+5%
+
+Configured Threshold:
+10%
+
+Result:
+--------
+Traffic Allowed
+
+
+Multicast Storm
+---------------
+
+Multicast Traffic:
+35%
+
+Configured Threshold:
+10%
+
+Result:
+--------
+Excess Traffic Dropped
+
+Network Protected
+
+Advantages and Disadvantages of this, hence what came next
+==========================================================
+
+Advantages
+----------
+1. Protects against multicast flooding.
+2. Preserves available bandwidth.
+3. Reduces switch CPU load.
+4. Improves network stability.
+5. Prevents multicast traffic abuse.
+6. Easy to implement.
+7. Protects critical applications.
+
+Disadvantages
+-------------
+1. Incorrect thresholds may impact valid multicast applications.
+2. Requires network traffic analysis.
+3. Does not control broadcast storms.
+4. Does not control unknown unicast storms.
+5. Does not remove the source of the storm.
+
+Hence what came next
+--------------------
+After controlling Broadcast and Multicast traffic, administrators realized that Unknown Unicast traffic could also consume excessive bandwidth.
+
+Unknown Unicast traffic occurs when the destination MAC address is not found in the CAM table.
+
+Large amounts of Unknown Unicast traffic can behave similarly to a flooding attack.
+
+This led to:
+
+Unknown Unicast Storm Control
+
+which limits excessive unknown unicast traffic before it affects the network.
+
+One-Shot Configuration
+======================
+
+Configure Multicast Storm Control
+
+Switch(config)# interface fa0/1
+Switch(config-if)# storm-control multicast level 10.00
+
+
+(Optional)
+
+Switch(config-if)# storm-control action trap
+
+
+(Optional)
+
+Switch(config-if)# storm-control action shutdown
+
+Verification
+============
+
+show storm-control
+
+show storm-control interface fa0/1
+
+show running-config interface fa0/1
+
+Expected Result
+===============
+
+Normal Multicast Traffic:
+-------------------------
+Allowed
+
+Traffic Below Threshold:
+------------------------
+Forwarded
+
+Traffic Above Threshold:
+------------------------
+Dropped
+
+Network Stability:
+------------------
+Maintained
+
+Multicast Storm:
+----------------
+Contained
+
+Summary
+=======
+
+Problem:
+Excessive multicast traffic can consume bandwidth and impact network performance.
+
+Solution:
+Multicast Storm Control limits multicast traffic on switch ports.
+
+Benefit:
+Protects network resources and improves stability.
+
+Limitation:
+Does not protect against Unknown Unicast flooding.
+
+Next Practical:
+Unknown Unicast Storm Control
