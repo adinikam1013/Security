@@ -1,0 +1,165 @@
+Name :
+================
+Storm Control Recovery
+
+Why we did this
+================
+Storm Control protects the network from:
+
+- Broadcast Storms
+- Multicast Storms
+- Unknown Unicast Storms
+
+When the configured threshold is exceeded, Storm Control may:
+
+- Drop Traffic
+- Generate Traps
+- Shutdown the Port
+
+While this protects the network, a new problem appears:
+
+After the storm ends, the affected port may remain disabled.
+
+This requires manual intervention by the network administrator.
+
+To reduce downtime and administrative effort, Storm Control Recovery is configured.
+
+It allows ports to automatically recover after a specified period.
+
+What will happen
+================
+1. Storm Control detects excessive traffic.
+2. Port enters Err-Disabled state (if shutdown action is configured).
+3. Storm condition ends.
+4. Recovery timer starts.
+5. Port automatically comes back online.
+6. Normal traffic resumes.
+
+Example
+
+During Storm
+------------
+
+Broadcast Traffic:
+40%
+
+Configured Threshold:
+10%
+
+Result:
+--------
+Port Shutdown
+
+
+After Storm Ends
+----------------
+
+Recovery Timer:
+300 Seconds
+
+Result:
+--------
+Port Automatically Re-enabled
+
+Advantages and Disadvantages of this, hence what came next
+==========================================================
+
+Advantages
+----------
+1. Reduces manual intervention.
+2. Improves network availability.
+3. Faster service restoration.
+4. Reduces operational workload.
+5. Works with all Storm Control types.
+6. Minimizes downtime.
+7. Improves resiliency.
+
+Disadvantages
+-------------
+1. If root cause still exists, storm may reoccur.
+2. Automatic recovery can restore a faulty device.
+3. Requires proper timer tuning.
+4. May hide recurring network issues.
+5. Monitoring is still required.
+
+Hence what came next
+--------------------
+Even after traffic storms are controlled, administrators still need to secure the switch itself.
+
+Attackers may target:
+
+- Management VLANs
+- Management Interfaces
+- Administrative Access
+
+To separate management traffic from user traffic, Cisco recommends:
+
+Secure Management VLAN
+
+which provides an isolated VLAN exclusively for switch management.
+
+One-Shot Configuration
+======================
+
+Configure Storm Control
+
+Switch(config)# interface fa0/1
+Switch(config-if)# storm-control broadcast level 10.00
+Switch(config-if)# storm-control action shutdown
+
+
+Enable Automatic Recovery
+
+Switch(config)# errdisable recovery cause storm-control
+
+Switch(config)# errdisable recovery interval 300
+
+Verification
+============
+
+show errdisable recovery
+
+show interfaces status err-disabled
+
+show storm-control
+
+Expected Result
+===============
+
+Storm Detected:
+---------------
+Port Shutdown
+
+Storm Cleared:
+--------------
+Recovery Timer Starts
+
+Recovery Interval:
+------------------
+300 Seconds
+
+Port Status:
+------------
+Automatically Re-enabled
+
+Network Availability:
+---------------------
+Restored
+
+Summary
+=======
+
+Problem:
+Storm Control may place a port into Err-Disabled state, requiring manual recovery.
+
+Solution:
+Configure Errdisable Recovery for Storm Control events.
+
+Benefit:
+Automatically restores normal operation after storm conditions disappear.
+
+Limitation:
+Does not fix the original cause of the storm.
+
+Next Practical:
+Secure Management VLAN
